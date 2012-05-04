@@ -1,0 +1,22 @@
+[Desktop Entry]
+Name=Stack Folder
+Name[en_GB]=Stack Folder
+Name[ru]=Стековая папка
+Comment=Browse the stack of folders
+Comment[en_GB]=Browse the stack of folders
+Comment[ru]=Просмотр стека папок
+Type=Service
+Icon=folder
+X-KDE-ServiceTypes=Plasma/Applet
+X-Plasma-DropMimeTypes=inode/directory
+
+X-KDE-Library=plasma_applet_stackfolder
+X-KDE-PluginInfo-Author=Ural Mullabaev
+X-KDE-PluginInfo-Email=support@rosalab.ru
+X-KDE-PluginInfo-Name=stackfolder
+X-KDE-PluginInfo-Version=0.2
+X-KDE-PluginInfo-Website=
+X-KDE-PluginInfo-Category=File System
+X-KDE-PluginInfo-Depends=
+X-KDE-PluginInfo-License=LGPL
+X-KDE-PluginInfo-EnabledByDefault=true
