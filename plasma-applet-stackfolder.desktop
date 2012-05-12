@@ -1,10 +1,6 @@
 [Desktop Entry]
 Name=Stack Folder
-Name[en_GB]=Stack Folder
-Name[ru]=Стековая папка
 Comment=Browse the stack of folders
-Comment[en_GB]=Browse the stack of folders
-Comment[ru]=Просмотр стека папок
 Type=Service
 Icon=folder
 X-KDE-ServiceTypes=Plasma/Applet
