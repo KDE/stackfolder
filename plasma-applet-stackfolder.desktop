@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Stack Folder
+Name[et]=Kataloogipinu
 Name[nl]=Map stapelen
 Name[pl]=Katalog stosu
 Name[pt]=Empilhar a Pasta
@@ -7,6 +8,7 @@ Name[pt_BR]=Pasta em pilha
 Name[uk]=Стос тек
 Name[x-test]=xxStack Folderxx
 Comment=Browse the stack of folders
+Comment[et]=Kataloogipinu sirvimine
 Comment[nl]=Blader door de stapel mappen
 Comment[pl]=Przeglądaj stos katalogów
 Comment[pt]=Navegar pela pilha de pastas
