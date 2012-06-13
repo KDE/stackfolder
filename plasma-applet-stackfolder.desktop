@@ -2,6 +2,7 @@
 Name=Stack Folder
 Name[de]=Ordnerstapel
 Name[et]=Kataloogipinu
+Name[km]=ដាក់​ថត​ជា​ជង់
 Name[nl]=Map stapelen
 Name[pl]=Katalog stosu
 Name[pt]=Empilhar a Pasta
@@ -11,6 +12,7 @@ Name[x-test]=xxStack Folderxx
 Comment=Browse the stack of folders
 Comment[de]=Ordnerstapel durchsuchen
 Comment[et]=Kataloogipinu sirvimine
+Comment[km]=រកមើល​ជង់​ថត
 Comment[nl]=Blader door de stapel mappen
 Comment[pl]=Przeglądaj stos katalogów
 Comment[pt]=Navegar pela pilha de pastas
