@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Stack Folder
+Name[da]=Stakmappe
 Name[de]=Ordnerstapel
 Name[et]=Kataloogipinu
 Name[km]=ដាក់​ថត​ជា​ជង់
@@ -10,6 +11,7 @@ Name[pt_BR]=Pasta em pilha
 Name[uk]=Стос тек
 Name[x-test]=xxStack Folderxx
 Comment=Browse the stack of folders
+Comment[da]=Gennemse en stak af mapper
 Comment[de]=Ordnerstapel durchsuchen
 Comment[et]=Kataloogipinu sirvimine
 Comment[km]=រកមើល​ជង់​ថត
