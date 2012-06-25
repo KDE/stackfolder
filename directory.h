@@ -89,6 +89,7 @@ class Directory : public QObject {
         Q_INVOKABLE void activate(int index);
         Q_INVOKABLE void show(int index, int x, int y, int width, int height);
         Q_INVOKABLE void open();
+        Q_INVOKABLE void activateDragAndDrop(int index);
 
     signals:
         void directoryChanged();
@@ -100,6 +101,7 @@ class Directory : public QObject {
         void dataAdded(const QModelIndex &parent, int start, int end);
         void dialogHidden();
         void showRequested(const QString &path, int x, int y, int width, int height);
+        void activatedDragAndDrop(const KFileItem &file_item);
 
     protected:
 	void timerEvent(QTimerEvent *event);

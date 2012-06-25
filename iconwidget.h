@@ -40,8 +40,17 @@ public:
     void startAnimation();
     void stopAnimation();
 
+signals:
+    void droppedItem(QGraphicsSceneDragDropEvent *event);
+
 protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+
+private: // Events
+    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
 
 private:
     QSequentialAnimationGroup *m_iconAnimationGroup;

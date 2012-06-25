@@ -31,7 +31,7 @@ set(stackfolder_SRCS
 
 
 kde4_add_plugin(plasma_applet_stackfolder ${stackfolder_SRCS})
-target_link_libraries(plasma_applet_stackfolder ${KDE4_PLASMA_LIBS}
+target_link_libraries(plasma_applet_stackfolder ${KDE4_PLASMA_LIBS} konq
                       ${KDE4_KIO_LIBS} ${KDE4_KFILE_LIBS} ${KDE4_SOLID_LIBS}
                       ${X11_LIBRARIES} ${QT_LIBRARIES})
 

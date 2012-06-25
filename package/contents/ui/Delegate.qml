@@ -78,6 +78,16 @@ Component {
 	    onExited: {
 		parent.GridView.view.hoveredIndex = -1
 	    }
+
+        onPressAndHold: {
+            directory.activateDragAndDrop(index)
+        }
+
+        onPositionChanged: {
+            if ( pressed && pressedButtons == Qt.LeftButton ) {
+                directory.activateDragAndDrop(index) // stops until the end of dragging
+            }
+        }
 	}
 
 	Connections {

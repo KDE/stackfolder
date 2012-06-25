@@ -39,6 +39,7 @@ class Dialog;
 class Directory;
 class IconWidget;
 class Viewer;
+class KFileItem;
 
 class DirModel;
 
@@ -64,6 +65,7 @@ protected slots:
 
     void updateIconWidget();
     void iconWidgetClicked();
+    void iconWidgetDroppedItem(QGraphicsSceneDragDropEvent*);
     void dataAdded(const QModelIndex &parent, int start, int end);
     void dialogHidden();
     void folderChanged(const KUrl& url);
@@ -76,6 +78,7 @@ protected slots:
     //void stopViewerProcess();
     //void deleteViewerProcess(int exitCode, QProcess::ExitStatus exitStatus);
     //void currentChanged(/*int index*/);
+    void activatedDragAndDrop(const KFileItem &item);
 
 private:
     QColor textColor() const;

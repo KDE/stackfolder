@@ -53,6 +53,8 @@ public:
 //    void setModel(Directory *model);
     void setPlugins(const QStringList &plugins);
 //U    void setModel(FileModel *model);
+    /// Return true if there is generated non-default preview for file specified by path
+    bool hasPreviewPixmap(const QString &file_path) const;
 
 public slots:
     void start(/*const QStringList &list*/ Directory* model, const KFileItemList &fileList);

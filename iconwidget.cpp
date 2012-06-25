@@ -26,6 +26,10 @@
 #include <QGraphicsItem>
 #include <QSequentialAnimationGroup>
 #include <QPropertyAnimation>
+#include <QDropEvent>
+#include <QGraphicsSceneDragDropEvent>
+#include <Plasma/Corona>
+
 
 IconWidget::IconWidget(const QIcon &icon, const QString &text, QGraphicsItem *parent)
     : Plasma::IconWidget(icon, text, parent),
@@ -39,6 +43,7 @@ IconWidget::IconWidget(const QIcon &icon, const QString &text, QGraphicsItem *pa
     m_iconAnimationGroup->addAnimation(m_iconAnimation1);
     m_iconAnimationGroup->addAnimation(m_iconAnimation2);
     m_iconAnimationGroup->setLoopCount(4);
+    setAcceptDrops(true);
 }
 
 IconWidget::~IconWidget()
@@ -87,3 +92,27 @@ void IconWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
     stopAnimation();
     Plasma::IconWidget::hoverEnterEvent(event);
 }
+
+void IconWidget::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Plasma::IconWidget::sceneEventFilter(this, event);
+    event->accept();
+}
+
+void IconWidget::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    const QString appletMimeType = static_cast<Plasma::Corona*>(scene())->appletMimeType();
+    event->setAccepted(!event->mimeData()->hasFormat(appletMimeType));
+}
+
+void IconWidget::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Plasma::IconWidget::sceneEventFilter(this, event);
+}
+
+void IconWidget::dropEvent(QGraphicsSceneDragDropEvent *event)
+{
+    emit droppedItem(event);
+}
+
+

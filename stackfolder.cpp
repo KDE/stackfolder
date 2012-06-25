@@ -22,6 +22,8 @@
 #include "stackfolder.h"
 
 #include <QApplication>
+#include <QMimeData>
+#include <QDrag>
 #include <QDesktopWidget>
 #include <QGraphicsLinearLayout>
 #include <QDeclarativeView>
@@ -29,7 +31,10 @@
 #include <QDeclarativeComponent>
 #include <QDeclarativeContext>
 #include <QDeclarativeItem>
+#include <QGraphicsSceneDragDropEvent>
 //#include <QProcess>
+#include <QDBusMessage>
+#include <QDBusConnection>
 
 #include <KDirModel>
 #include <KDirLister>
@@ -39,6 +44,8 @@
 #include <KGlobalSettings>
 #include <KWindowSystem>
 #include <KRun>
+#include <KFileItem>
+#include <konq_operations.h>
 
 #include <limits.h>
 
@@ -60,6 +67,22 @@
 #include "previewgenerator.h"
 #include "iconwidget.h"
 #include "viewer.h"
+
+
+namespace {
+
+const float _CmPerInch = 2.54;
+const float _DragPreviewMaxSize = 1.0f / _CmPerInch;  // Maximum size of dragging preview image in cm
+
+const char * const _KDE_DnDExtract        = "application/x-kde-dndextract";
+const char * const _KDE_DnD_DBusPath      = "/DndExtract";
+const char * const _KDE_DnD_DBusInterface = "org.kde.DndExtract";
+const char * const _KDE_DnD_DBusMethod    = "extractSelectedFilesTo";
+
+
+} //namespace
+
+
 
 K_EXPORT_PLASMA_APPLET(stackfolder, StackFolder)
 
@@ -225,6 +248,7 @@ void StackFolder::constraintsEvent(Plasma::Constraints constraints)
 
             // Set up the icon widget
 	    m_iconWidget = new IconWidget(KIcon("user-folder"), "", this);
+        connect(m_iconWidget, SIGNAL(droppedItem(QGraphicsSceneDragDropEvent*)), SLOT(iconWidgetDroppedItem(QGraphicsSceneDragDropEvent*)));
             connect(m_iconWidget, SIGNAL(clicked()), SLOT(iconWidgetClicked()));
 
 //            updateIconWidget();
@@ -246,6 +270,7 @@ void StackFolder::constraintsEvent(Plasma::Constraints constraints)
 	    connect(m_directory, SIGNAL(fileActivated()), this, SLOT(fileActivated()));
 	    connect(m_directory, SIGNAL(dataAdded(const QModelIndex&, int, int)), this, SLOT(dataAdded(const QModelIndex&, int, int)));
 	    connect(m_directory, SIGNAL(showRequested(const QString&, int, int, int, int)), this, SLOT(runViewer(const QString&, int, int, int, int)));
+        connect(m_directory, SIGNAL(activatedDragAndDrop(const KFileItem&)), this, SLOT(activatedDragAndDrop(const KFileItem&)));
 
 	    m_graphicsWidget = new QGraphicsWidget(this);
 /*
@@ -453,6 +478,23 @@ void StackFolder::iconWidgetClicked()
     }
 }
 
+void StackFolder::iconWidgetDroppedItem(QGraphicsSceneDragDropEvent *event)
+{
+    if (event->mimeData()->hasFormat(_KDE_DnDExtract)) {
+        const QString remoteDBusClient = event->mimeData()->data(_KDE_DnDExtract);
+        QDBusMessage message = QDBusMessage::createMethodCall(remoteDBusClient, _KDE_DnD_DBusPath,
+                                                              _KDE_DnD_DBusInterface, _KDE_DnD_DBusMethod);
+        message.setArguments(QVariantList() << m_dirModel->dirLister()->url().pathOrUrl());
+        QDBusConnection::sessionBus().call(message);
+        return;
+    }
+
+    QDropEvent ev(event->screenPos(), event->dropAction(), event->mimeData(),
+                  event->buttons(), event->modifiers());
+    KonqOperations::doDrop(m_dirModel->dirLister()->rootItem(), m_dirModel->dirLister()->url(),
+                           &ev, event->widget());
+}
+
 void StackFolder::dataAdded(const QModelIndex &parent, int start, int end)
 {
     for (int i = start; i < end + 1; i++) {
@@ -553,6 +595,32 @@ QSize StackFolder::sizeToFitIcons(const int count) const
 void StackFolder::runViewer(const QString &path, int x, int y, int width, int height)
 {
     m_viewer->run(path, x + m_dialog->x(), y + m_dialog->y(), width, height);
+}
+
+void StackFolder::activatedDragAndDrop(const KFileItem &item)
+{
+    QMimeData *mime = new QMimeData;
+    QList<QUrl> urls;
+    urls.append(item.url());
+    mime->setUrls(urls);
+    QDrag *drag = new QDrag(m_dialog); // Qt will delete drag & mime objects
+    drag->setMimeData(mime);
+    QString local_path = item.localPath();
+    PreviewGenerator *gen = PreviewGenerator::createInstance();
+    Q_ASSERT(gen != 0);
+
+    if (gen->hasPreviewPixmap(local_path)) {
+        int dpi_x = QApplication::desktop()->physicalDpiX();
+        int dpi_y = QApplication::desktop()->physicalDpiY();
+
+        int width  = int(_DragPreviewMaxSize * dpi_x + 0.5f);
+        int height = int(_DragPreviewMaxSize * dpi_y + 0.5f);
+
+        drag->setPixmap(gen->getPreviewPixmap(item.localPath()).scaled(width, height, Qt::KeepAspectRatio));
+    }
+    else
+        drag->setPixmap(item.pixmap(0));
+    drag->exec(Qt::CopyAction | Qt::MoveAction | Qt::LinkAction, Qt::CopyAction);
 }
 
 bool StackFolder::eventFilter(QObject *watched, QEvent *event)

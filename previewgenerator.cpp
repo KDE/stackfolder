@@ -130,6 +130,10 @@ QPixmap PreviewGenerator::getPreviewPixmap(QString filePath)
     return defaultPreview;
 }
 
+bool PreviewGenerator::hasPreviewPixmap(const QString &file_path) const {
+    return previews.contains(file_path);
+}
+
 PreviewGenerator * PreviewGenerator::createInstance()
 {
     if(!instance)

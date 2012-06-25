@@ -21,7 +21,6 @@
 
 #include "directory.h"
 
-#include <QDebug>
 #include <QAbstractItemView>
 //#include <QCoreApplication>
 
@@ -37,7 +36,7 @@
 #include "proxymodel.h"
 #include "previewgenerator.h"
 
-Directory::Directory(/*ProxyModel *model, KUrl &url,*/ QObject *parent) 
+Directory::Directory(/*ProxyModel *model, KUrl &url,*/ QObject *parent)
     : QObject(parent),
     m_folderIsEmpty(false),
     m_directoryChanging(false)
@@ -63,7 +62,9 @@ void Directory::setModel(QAbstractItemModel *model)
     connect(lister, SIGNAL(completed()), SLOT(listingCompleted()));
     connect(lister, SIGNAL(canceled()), SLOT(listingCanceled()));
     connect(lister, SIGNAL(showErrorMessage(QString)), SLOT(listingError(QString)));
-    //connect(lister, SIGNAL(itemsDeleted(KFileItemList)), SLOT(itemsDeleted(KFileItemList)));
+    // Next connection is activated, because moving file from stackfolder to stackfolder doesn't cause notifications
+    // from KDirLister, so we use this signal to update content of widget dialog
+    connect(lister, SIGNAL(itemsDeleted(KFileItemList)), SLOT(listingDeleted(KFileItemList)));
 }
 
 QAbstractItemModel *Directory::model() const
@@ -269,6 +270,12 @@ void Directory::open()
     }
 }
 
+void Directory::activateDragAndDrop(int index) {
+    const QModelIndex modelIndex = m_model->index(index, 0);
+    const KFileItem item = m_model->itemForIndex(modelIndex);
+    emit activatedDragAndDrop(item);
+}
+
 void Directory::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     if (!m_directoryChanging)
@@ -327,6 +334,10 @@ void Directory::listingDeleted(const KFileItemList &items)
     if (!m_model->rowCount()) {
         m_folderIsEmpty = true;
     }
+
+    // update content of widget dialog (window)
+    refresh();
+    emit directoryChanged();
 }
 
 void Directory::clear()
