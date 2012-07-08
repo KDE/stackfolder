@@ -2,6 +2,7 @@
 Name=Stack Folder
 Name[da]=Stakmappe
 Name[de]=Ordnerstapel
+Name[es]=Apilar carpeta
 Name[et]=Kataloogipinu
 Name[hu]=Verem mappa
 Name[km]=ដាក់​ថត​ជា​ជង់
@@ -15,6 +16,7 @@ Name[x-test]=xxStack Folderxx
 Comment=Browse the stack of folders
 Comment[da]=Gennemse en stak af mapper
 Comment[de]=Ordnerstapel durchsuchen
+Comment[es]=Explorar la pila de carpetas
 Comment[et]=Kataloogipinu sirvimine
 Comment[hu]=A mappák vermének böngészése
 Comment[km]=រកមើល​ជង់​ថត
