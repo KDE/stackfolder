@@ -74,9 +74,9 @@ namespace {
 const float _CmPerInch = 2.54;
 const float _DragPreviewMaxSize = 1.0f / _CmPerInch;  // Maximum size of dragging preview image in cm
 
-const char * const _KDE_DnDExtract        = "application/x-kde-dndextract";
-const char * const _KDE_DnD_DBusPath      = "/DndExtract";
-const char * const _KDE_DnD_DBusInterface = "org.kde.DndExtract";
+const char * const _KDE_DnDExtractPath    = "application/x-kde-ark-dndextract-path";
+const char * const _KDE_DnDExtractService = "application/x-kde-ark-dndextract-service";
+const char * const _KDE_DnD_DBusInterface = "org.kde.ark.DndExtract";
 const char * const _KDE_DnD_DBusMethod    = "extractSelectedFilesTo";
 
 
@@ -480,9 +480,11 @@ void StackFolder::iconWidgetClicked()
 
 void StackFolder::iconWidgetDroppedItem(QGraphicsSceneDragDropEvent *event)
 {
-    if (event->mimeData()->hasFormat(_KDE_DnDExtract)) {
-        const QString remoteDBusClient = event->mimeData()->data(_KDE_DnDExtract);
-        QDBusMessage message = QDBusMessage::createMethodCall(remoteDBusClient, _KDE_DnD_DBusPath,
+    if (event->mimeData()->hasFormat(_KDE_DnDExtractPath) &&
+        event->mimeData()->hasFormat(_KDE_DnDExtractService)) {
+        const QString remoteDBusClient = event->mimeData()->data(_KDE_DnDExtractService);
+        const QString remoteDBusPath = event->mimeData()->data(_KDE_DnDExtractPath);
+        QDBusMessage message = QDBusMessage::createMethodCall(remoteDBusClient, remoteDBusPath,
                                                               _KDE_DnD_DBusInterface, _KDE_DnD_DBusMethod);
         message.setArguments(QVariantList() << m_dirModel->dirLister()->url().pathOrUrl());
         QDBusConnection::sessionBus().call(message);
