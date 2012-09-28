@@ -18,7 +18,6 @@ include_directories(
 
 set(stackfolder_SRCS
     stackfolder.cpp
-    dialog.cpp
     dirlister.cpp
     proxymodel.cpp
     imageprovider.cpp

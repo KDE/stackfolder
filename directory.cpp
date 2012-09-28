@@ -246,7 +246,7 @@ void Directory::show(int index, int x, int y, int width, int height)
     const QModelIndex modelIndex = m_model->index(index, 0);
     const KFileItem item = m_model->itemForIndex(modelIndex);
 
-
+    qDebug() << "Directory::show()";
     //if (item.isFile()) {
 	const int margin  = 10;
     //qDebug() << "Directory::show i=" << index << " x=" << x+20 << " y=" <<  y+10 << " w=" <<  width << " h=" <<  height;
@@ -404,6 +404,11 @@ void Directory::setPreview(const KFileItem &item, const QPixmap &pixmap)
 void Directory::emitDialogHidden()
 {
     emit dialogHidden();
+}
+
+void Directory::emitKeyPressed(const QKeyEvent *event)
+{
+    emit keyPressed(event->key(), event->modifiers());
 }
 
 void Directory::timerEvent(QTimerEvent *event)

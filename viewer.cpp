@@ -21,7 +21,6 @@
 
 #include "viewer.h"
 
-//#include <QX11EmbedContainer>
 #include <QDebug>
 
 Viewer::Viewer(QObject *parent)

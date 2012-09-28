@@ -21,18 +21,26 @@
 
 import QtQuick 1.1
 
+LayoutItem {
+    id: root
+
+    minimumSize: "120x170"
+    //preferredSize: "300x400"
+
+    signal currentChanged(/*int index*/)
+
     Rectangle {
 	id: main
 
-	    width: 120
-	    height: 170
+	width: parent.width
+	height: parent.height
 
 	color: "transparent"
 	anchors.fill: parent
 
 	signal selectChanged()
 	signal notifyRefresh()
-        signal currentChanged(/*int index*/)
+//      signal currentChanged(/*int index*/)
 
 	onNotifyRefresh: {
 	    fileView.model = directory.files;
@@ -89,6 +97,58 @@ import QtQuick 1.1
 	    onDialogHidden: {
 		fileView.currentIndex = -1 
 	    }
+
+
+        onKeyPressed: {
+	    console.log("onKeyPressed key=", key)
+
+	    if ((key == Qt.Key_Return) || (key == Qt.Key_Enter)) {
+		if (/*event.*/modifiers & Qt.AltModifier) {
+		    console.log("onAltEnterPressed")
+		    directory.open()
+		}
+		else {
+		    console.log("onReturnPressed")
+		    directory.activate(fileView.currentIndex)
+		}
+	    }
+	    else if (key == Qt.Key_Backspace) {
+	    	console.log("onBackspacePressed")
+		directory.back()
+	    }
+	    else if (key == Qt.Key_Space) {
+		console.log("onSpacePressed contentX="+fileView.contentX+" contentY="+fileView.contentY)
+		if (fileView.currentIndex != -1)
+		    directory.show(fileView.currentIndex, fileView.x + fileView.currentItem.x - fileView.contentX, fileView.y + fileView.currentItem.y - fileView.contentY, fileView.currentItem.width, fileView.currentItem.height)
+		else
+    		    if (fileView.hoveredIndex != -1)
+			directory.show(fileView.hoveredIndex, fileView.x + fileView.hoveredItem.x - fileView.contentX, fileView.y + fileView.hoveredItem.y - fileView.contentY, fileView.hoveredItem.width, fileView.hoveredItem.height)
+	    }
+	    else if (key == Qt.Key_Left) {
+		fileView.moveCurrentIndexLeft()
+	    }
+	    else if (key == Qt.Key_Up) {
+		fileView.moveCurrentIndexUp()
+	    }
+	    else if (key == Qt.Key_Right) {
+		fileView.moveCurrentIndexRight()
+	    }
+	    else if (key == Qt.Key_Down) {
+		fileView.moveCurrentIndexDown()
+	    }
+
+	    /*
+	    else if (key == Qt.Key_Tab) {
+		fileView.moveCurrentIndexRight()
+	    }
+	    else if (key == Qt.Key_Backtab) {
+		fileView.moveCurrentIndexLeft()
+	    }
+	    */
+	}
+
+
+
 	}
 
 	Row {
@@ -170,7 +230,7 @@ import QtQuick 1.1
 
 	    onCurrentIndexChanged: {
 	    	//console.log("onCurrentIndexChanged")
-                main.currentChanged(/*fileView.currentIndex*/)
+                root/*main*/.currentChanged(/*fileView.currentIndex*/)
 	    }
 
 	    ScrollBar {
@@ -209,13 +269,14 @@ import QtQuick 1.1
 		directory.back()
 	    }
 	    else if (event.key == Qt.Key_Space) {
-		//console.log("onSpacePressed contentX="+fileView.contentX+" contentY="+fileView.contentY)
+		console.log("onSpacePressed contentX="+fileView.contentX+" contentY="+fileView.contentY)
 		if (fileView.currentIndex != -1)
 		    directory.show(fileView.currentIndex, fileView.x + fileView.currentItem.x - fileView.contentX, fileView.y + fileView.currentItem.y - fileView.contentY, fileView.currentItem.width, fileView.currentItem.height)
 		else
     		    if (fileView.hoveredIndex != -1)
 			directory.show(fileView.hoveredIndex, fileView.x + fileView.hoveredItem.x - fileView.contentX, fileView.y + fileView.hoveredItem.y - fileView.contentY, fileView.hoveredItem.width, fileView.hoveredItem.height)
 	    }
+
 	    /*
 	    else if (event.key == Qt.Key_Tab) {
 		fileView.moveCurrentIndexRight()
@@ -225,4 +286,6 @@ import QtQuick 1.1
 	    }
 	    */
 	}
+
     }
+}

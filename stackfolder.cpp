@@ -32,9 +32,12 @@
 #include <QDeclarativeContext>
 #include <QDeclarativeItem>
 #include <QGraphicsSceneDragDropEvent>
+#include <QDropEvent>
 //#include <QProcess>
 #include <QDBusMessage>
 #include <QDBusConnection>
+#include <QSequentialAnimationGroup>
+#include <QPropertyAnimation>
 
 #include <KDirModel>
 #include <KDirLister>
@@ -54,12 +57,12 @@
 #  include <windows.h>
 #endif // Q_OS_WIN
 
+#include <Plasma/Corona>
 #include <Plasma/WindowEffects>
 #include <Plasma/Theme>
 #include <Plasma/ToolTipManager>
 
 #include "dirlister.h"
-#include "dialog.h"
 #include "proxymodel.h"
 
 #include "directory.h"
@@ -68,33 +71,13 @@
 #include "iconwidget.h"
 #include "viewer.h"
 
-
-namespace {
-
-const float _CmPerInch = 2.54;
-const float _DragPreviewMaxSize = 1.0f / _CmPerInch;  // Maximum size of dragging preview image in cm
-
-const char * const _KDE_DnDExtractPath    = "application/x-kde-ark-dndextract-path";
-const char * const _KDE_DnDExtractService = "application/x-kde-ark-dndextract-service";
-const char * const _KDE_DnD_DBusInterface = "org.kde.ark.DndExtract";
-const char * const _KDE_DnD_DBusMethod    = "extractSelectedFilesTo";
-
-
-} //namespace
-
-
-
 K_EXPORT_PLASMA_APPLET(stackfolder, StackFolder)
 
 StackFolder::StackFolder(QObject *parent, const QVariantList &args)
-    : Plasma::Applet(parent, args),
-      m_dialog(0),
+    : Plasma::PopupApplet(parent, args),
       m_graphicsWidget(0),
-      m_graphicsObject(0),
-     // m_previewGenerator(0),
       m_placesModel(0),
       m_iconWidget(0)
-      //m_viewerProcess(0)
 {
     setAspectRatioMode(Plasma::IgnoreAspectRatio);
     setHasConfigurationInterface(false);
@@ -106,40 +89,19 @@ StackFolder::StackFolder(QObject *parent, const QVariantList &args)
     m_model->setSortLocaleAware(true);
     m_model->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-//    connect(m_model, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(rowsInserted(QModelIndex,int,int)));
-
     m_selectionModel = new QItemSelectionModel(m_model, this);
-
-//    m_layout = 0;
 
     if (args.count() > 0) {
         m_url = KUrl(args.value(0).toString());
-        //setUrl(KUrl(args.value(0).toString()));
     }
-//qDebug() << "StackFolder::StackFolder()";
+
+    setPopupIcon(KIcon("folder"));
 }
 
 void StackFolder::init()
 {
-
-
-    // Find out about icon and font settings changes
     connect(KGlobalSettings::self(), SIGNAL(kdisplayFontChanged()), SLOT(fontSettingsChanged()));
-    connect(this, SIGNAL(geometryChanged()), SLOT(iconGeometryChanged()));
-
-    // Find out about theme changes
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), SLOT(themeChanged()));
-
-    // Find out about network availability changes
-    //connect(Solid::Networking::notifier(), SIGNAL(statusChanged(Solid::Networking::Status)),
-    //        SLOT(networkStatusChanged(Solid::Networking::Status)));
-
-
-    //m_customIconSize      = 64;
-    //m_showPreviews        = true;
-    //m_numTextLines        = 2;
-    //m_textColor           = QColor(Qt::transparent);
-    //m_iconsLocked         = false;
     m_previewPlugins      = QStringList() << "ffmpegthumbs" 		// Video
 		  			  << "imagethumbnail" 		// Image
 		  			  << "jpegthumbnail" 		// Jpeg
@@ -164,10 +126,6 @@ void StackFolder::init()
     m_filterType          = 0;
     m_hideForChangeFolder = true;
 
-
-//    m_flow = layoutDirection() == Qt::LeftToRight ? IconView::LeftToRight : IconView::RightToLeft;
-
-
     m_model->setFilterMode(ProxyModel::filterModeFromInt(m_filterType));
     m_model->setSortDirectoriesFirst(m_sortDirsFirst);
     m_model->setDynamicSortFilter(m_sortColumn != -1);
@@ -183,7 +141,6 @@ void StackFolder::init()
     if (!m_url.isValid()) {
         QString path = QDir::homePath();
         m_url = config().readEntry("url", KUrl(path));
-        //setUrl(config().readEntry("url", KUrl(path)));
     } else {
         config().writeEntry("url", m_url);
     }
@@ -204,8 +161,6 @@ void StackFolder::init()
 
 StackFolder::~StackFolder()
 {
-    if (m_graphicsObject)
-	delete m_graphicsObject;
 }
 
 QColor StackFolder::textColor() const
@@ -217,100 +172,58 @@ QColor StackFolder::textColor() const
     return Plasma::Theme::defaultTheme()->color(Plasma::Theme::TextColor);
 }
 
-void StackFolder::updateIconViewState()
-{
-/*
-    QPalette palette = m_iconView->palette();
-    palette.setColor(QPalette::Text, textColor());
-    m_iconView->setPalette(palette);
-
-    m_iconView->setDrawShadows(m_drawShadows);
-    m_iconView->setIconSize(iconSize());
-    m_iconView->setTextLineCount(m_numTextLines);
-    m_iconView->setFlow(m_flow);
-    m_iconView->setWordWrap(m_numTextLines > 1);
-    m_iconView->setIconsMoveable(!m_iconsLocked);
-    if (m_label) {
-        m_label->setPalette(palette);
-        m_label->setDrawShadow(m_drawShadows);
-    }
-*/
-}
-
-void StackFolder::constraintsEvent(Plasma::Constraints constraints)
+QGraphicsWidget *StackFolder::graphicsWidget()
 {
     if (m_graphicsWidget) {
-        return;
+        return m_graphicsWidget;
     }
 
-    if (constraints & Plasma::FormFactorConstraint) {
-        if (formFactor() != Plasma::Planar && formFactor() != Plasma::MediaCenter) {
+    setAcceptDrops(true);
 
-            // Set up the icon widget
-	    m_iconWidget = new IconWidget(KIcon("user-folder"), "", this);
-        connect(m_iconWidget, SIGNAL(droppedItem(QGraphicsSceneDragDropEvent*)), SLOT(iconWidgetDroppedItem(QGraphicsSceneDragDropEvent*)));
-            connect(m_iconWidget, SIGNAL(clicked()), SLOT(iconWidgetClicked()));
+    PreviewGenerator *previewGenerator = PreviewGenerator::createInstance();
+    previewGenerator->setPlugins(m_previewPlugins);
 
-//            updateIconWidget();
-	    updateIconViewState();
+    TypeImageProvider *typeImageProvider = new TypeImageProvider();
+    ModeImageProvider *modeImageProvider = new ModeImageProvider();
+    PreviewImageProvider *previewImageProvider = new PreviewImageProvider();
 
-	    PreviewGenerator *previewGenerator = PreviewGenerator::createInstance();
-	    previewGenerator->setPlugins(m_previewPlugins);
+    m_viewer = new Viewer;
 
-	    TypeImageProvider *typeImageProvider = new TypeImageProvider();
-	    ModeImageProvider *modeImageProvider = new ModeImageProvider();
-	    PreviewImageProvider *previewImageProvider = new PreviewImageProvider();
+    m_directory = new Directory(this);
+    m_directory->setModel(m_model);
+    m_directory->setTopUrl(m_url);
+    m_directory->setUrl(m_url);
+    connect(m_directory, SIGNAL(fileActivated()), this, SLOT(fileActivated()));
+    connect(m_directory, SIGNAL(dataAdded(const QModelIndex&, int, int)), this, SLOT(dataAdded(const QModelIndex&, int, int)));
+    connect(m_directory, SIGNAL(showRequested(const QString&, int, int, int, int)), this, SLOT(runViewer(const QString&, int, int, int, int)));
+    connect(m_directory, SIGNAL(activatedDragAndDrop(const KFileItem&)), this, SLOT(activatedDragAndDrop(const KFileItem&)));
 
-    	    m_viewer = new Viewer;
+    qmlRegisterType<File>("File", 1, 0, "File");
 
-	    m_directory = new Directory(this);
-	    m_directory->setModel(m_model);
-	    m_directory->setTopUrl(m_url);
-	    m_directory->setUrl(m_url);
-	    connect(m_directory, SIGNAL(fileActivated()), this, SLOT(fileActivated()));
-	    connect(m_directory, SIGNAL(dataAdded(const QModelIndex&, int, int)), this, SLOT(dataAdded(const QModelIndex&, int, int)));
-	    connect(m_directory, SIGNAL(showRequested(const QString&, int, int, int, int)), this, SLOT(runViewer(const QString&, int, int, int, int)));
-        connect(m_directory, SIGNAL(activatedDragAndDrop(const KFileItem&)), this, SLOT(activatedDragAndDrop(const KFileItem&)));
+    QDeclarativeEngine *m_engine = new QDeclarativeEngine;
+    m_engine->addImageProvider("type", typeImageProvider);
+    m_engine->addImageProvider("mode", modeImageProvider);
+    m_engine->addImageProvider("preview", previewImageProvider);
+    m_engine->rootContext()->setContextProperty("directory", m_directory);
+    QDeclarativeComponent component(m_engine, QUrl::fromLocalFile("/usr/share/apps/plasma/plasmoids/stackfolder/contents/ui/main.qml"));
+    QObject *object = component.create();
+    QGraphicsLayoutItem *graphicsObject = qobject_cast<QGraphicsLayoutItem*>(object);
 
-	    m_graphicsWidget = new QGraphicsWidget(this);
-/*
-	    m_graphicsWidget->setFocusPolicy(Qt::StrongFocus);
-	    m_graphicsWidget->setFocusProxy(m_graphicsObject->graphicsItem());
-	    m_graphicsWidget->setFocus();
-*/
+    QObject::connect(object, SIGNAL(currentChanged()), m_viewer, SLOT(stop()));
 
-	    qmlRegisterType<File>("File", 1, 0, "File");
-
-	    m_declView = new QDeclarativeView();
-	    m_declView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-	    m_declView->setFocusPolicy(Qt::StrongFocus);
-	    m_declView->setStyleSheet("background:transparent");
-
-	    m_declView->engine()->addImageProvider("type", typeImageProvider);
-	    m_declView->engine()->addImageProvider("mode", modeImageProvider);
-	    m_declView->engine()->addImageProvider("preview", previewImageProvider);
-	    m_declView->rootContext()->setContextProperty("directory", m_directory);
-	    m_declView->setSource(QUrl::fromLocalFile("/usr/share/apps/plasma/plasmoids/stackfolder/contents/ui/main.qml"));
-
-    	    QObject *item = m_declView->rootObject();
-    	    QObject::connect(item, SIGNAL(currentChanged(/*int*/)), m_viewer, SLOT(/*currentChanged*/stop/*ViewerProcess*/(/*int*/)));
-
-            m_dialog = new Dialog;
-            m_dialog->setGraphicsWidget(m_graphicsWidget);
-            m_dialog->setDeclarativeView(m_declView);
-            m_dialog->setViewer(m_viewer);
-	    connect(m_dialog, SIGNAL(hidden()), this, SLOT(dialogHidden()));
+    m_layout = new QGraphicsLinearLayout(Qt::Vertical);
+    m_layout->setContentsMargins(10, 0, 10, 0);
+    m_layout->addItem(graphicsObject);
 
 
+    m_graphicsWidget = new QGraphicsWidget(this);
+    m_graphicsWidget->setLayout(m_layout);
 
-            QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical, this);
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(0);
-            layout->addItem(m_iconWidget);
-            setLayout(layout);
-            setAspectRatioMode(Plasma::ConstrainedSquare);
-        }
-    }
+    QGraphicsLinearLayout *lay = dynamic_cast<QGraphicsLinearLayout *>(layout());
+    lay->setContentsMargins(0, 0, 0, 0);
+    lay->setSpacing(0);
+
+    return m_graphicsWidget;
 }
 
 void StackFolder::configChanged()
@@ -325,26 +238,23 @@ void StackFolder::configChanged()
 */
 }
 
-
 void StackFolder::folderChanged(const KUrl& url)
 {
 
     if (m_graphicsWidget) {
 
 	m_folderChanging = true;
+	qDebug() << "StackFolder::folderChanged() >>  m_folderChanging = " <<  m_folderChanging << "m_firstChangings = " << m_firstChangings;
 
-	if (!m_dialog->isHidden() && m_firstChangings > 1) {
+	if (isPopupShowing() && m_firstChangings > 1) {
 	    m_needShow = true;
-	    hideDialog();
+	    hidePopup();
 	}
-	//qDebug() << "StackFolder::folderChanged(): m_needShow=" << m_needShow;
 
         if (m_downloadUrl.isParentOf(url))
 	    m_model->sort(KDirModel::ModifiedTime);
-	    //m_model->setSortMode(ProxyModel::SortByDate);
 	else
 	    m_model->sort(KDirModel::Name);
-	    //m_model->setSortMode(ProxyModel::SortByName);
 
 	const int count = m_dirModel->dirLister()->itemsForDir(url).count();
 	QSize size = sizeToFitIcons(count);
@@ -353,15 +263,10 @@ void StackFolder::folderChanged(const KUrl& url)
   	m_graphicsWidget->setMinimumSize(size);
   	m_graphicsWidget->setMaximumSize(size);
 
-        if (m_needShow) {
-	    m_needShow = false;
-	    showDialog();
-	}
-
 	if (m_firstChangings == 1)
 	    m_firstChangings = 2;
-	//qDebug() << "StackFolder::folderChanged(): m_firstChangings=" << m_firstChangings;
-	m_folderChanging = false;
+	//m_folderChanging = false;
+	qDebug() << "StackFolder::folderChanged() <<  m_folderChanging = " <<  m_folderChanging << "m_firstChangings = " << m_firstChangings;
 
     }
     updateIconWidget();
@@ -372,41 +277,13 @@ void StackFolder::fontSettingsChanged()
 //    QFont font = Plasma::Theme::defaultTheme()->font(Plasma::Theme::DesktopFont);
 }
 
-void StackFolder::iconGeometryChanged()
-{
-    if (m_iconWidget) {
-        //qDebug("StackFolder::iconGeometryChanged");
-        m_iconWidget->update(m_iconWidget->boundingRect());
-    }
-}
-
 void StackFolder::themeChanged()
 {
 /*
     if (m_textColor != Qt::transparent) {
         return;
     }
-
-    if (m_iconView) {
-        QPalette palette = m_iconView->palette();
-        palette.setColor(QPalette::Text, textColor());
-        m_iconView->setPalette(palette);
-    }
-
-    if (m_label) {
-        QPalette palette = m_label->palette();
-        palette.setColor(QPalette::Text, textColor());
-        m_label->setPalette(palette);
-    }
 */
-}
-
-void StackFolder::networkStatusChanged(Solid::Networking::Status status)
-{
-    if (status == Solid::Networking::Connected && !m_url.isLocalFile() &&
-        m_url.protocol() != "desktop") {
-        refreshIcons();
-    }
 }
 
 void StackFolder::refreshIcons()
@@ -416,85 +293,67 @@ void StackFolder::refreshIcons()
 
 void StackFolder::updateIconWidget()
 {
-    if (!m_iconWidget) {
-        return;
-    }
-
     if (!m_placesModel) {
 	m_placesModel = new KFilePlacesModel(this);
 
         const QModelIndex index = m_placesModel->closestItem(m_topUrl);
 	const KUrl url = m_placesModel->url(index);
 
-        KIcon icon;
-
 	KFileItem item = m_dirModel->itemForIndex(QModelIndex());
 
         if (!item.isNull() && item.iconName() != "inode-directory") {
-	    icon = KIcon(item.iconName(), 0, item.overlays());
+	    m_icon = KIcon(item.iconName(), 0, item.overlays());
         } else if (m_topUrl.protocol() == "desktop") {
-	    icon = KIcon("user-desktop");
+	    m_icon = KIcon("user-desktop");
         } else if (m_topUrl.protocol() == "trash") {
-	    icon = m_model->rowCount() > 0 ? KIcon("user-trash-full") : KIcon("user-trash");
+	    m_icon = m_model->rowCount() > 0 ? KIcon("user-trash-full") : KIcon("user-trash");
         } else if (index.isValid() && url.equals(m_topUrl, KUrl::CompareWithoutTrailingSlash)) {
-	    icon = m_placesModel->icon(index);
+	    m_icon = m_placesModel->icon(index);
         } else {
-	    icon = KIcon("folder");
+	    m_icon = KIcon("folder");
         }
-        m_iconWidget->setIcon(icon);
-	m_iconWidget->update();
 
-    }
+    //setPopupIcon(m_icon);
+    setPopupIcon(NULL);
+
+    m_iconWidget = new IconWidget(m_icon, "", this);
+    connect(m_iconWidget, SIGNAL(droppedItem(QGraphicsSceneDragDropEvent*)), SLOT(iconWidgetDroppedItem(QGraphicsSceneDragDropEvent*)));
+    connect(m_iconWidget, SIGNAL(clicked()), SLOT(iconWidgetClicked()));
+
+    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout();
+    layout->setContentsMargins(3, 0, 3, 6);
+    layout->setSpacing(0);
+    layout->setOrientation(Qt::Horizontal);
+    layout->addItem(m_iconWidget);
+    layout->setAlignment(m_iconWidget, Qt::AlignCenter);
+    setLayout(layout);
 
     // Update the tooltip
     Plasma::ToolTipContent data;
     data.setMainText(i18n("Stack Folder"));
     data.setSubText(m_topUrl.fileName(KUrl::IgnoreTrailingSlash));
-    data.setImage(m_iconWidget->icon());
-    Plasma::ToolTipManager::self()->setContent(m_iconWidget, data);
+    data.setImage(m_icon);
+    Plasma::ToolTipManager::self()->setContent(this, data);
+
+    }
 }
 
 void StackFolder::iconWidgetClicked()
 {
-    //Plasma::WindowEffects::slideWindow(m_dialog, location());
-/*
-    if (m_iconAnimationGroup->state() != QAbstractAnimation::Stopped)
-	qDebug() << "StackFolder::iconWidgetClicked(): animation isn't stopped";
-    m_iconAnimationGroup->stop();
-*/
-    if (m_dialog->isVisible()) {
-        hideDialog();
+    qDebug() << "StackFolder::::iconWidgetClicked(): m_firstChangings=" << m_firstChangings;
+
+    if (isPopupShowing()) {
+        hidePopup();
     } else {
 	//qDebug() << "StackFolder::::iconWidgetClicked(): m_firstChangings=" << m_firstChangings;
-
 	if (!m_firstChangings) {
 	    m_firstChangings = 1;
 	    m_directory->setUrl(m_topUrl);
 	}
-	showDialog();
+        showPopup();
 	//qDebug() << "StackFolder::iconWidgetClicked hasFocus=" << m_dialog->hasFocus();
-	m_dialog->setFocus();
-	//m_declView->setFocus();
+	//m_dialog->setFocus();
     }
-}
-
-void StackFolder::iconWidgetDroppedItem(QGraphicsSceneDragDropEvent *event)
-{
-    if (event->mimeData()->hasFormat(_KDE_DnDExtractPath) &&
-        event->mimeData()->hasFormat(_KDE_DnDExtractService)) {
-        const QString remoteDBusClient = event->mimeData()->data(_KDE_DnDExtractService);
-        const QString remoteDBusPath = event->mimeData()->data(_KDE_DnDExtractPath);
-        QDBusMessage message = QDBusMessage::createMethodCall(remoteDBusClient, remoteDBusPath,
-                                                              _KDE_DnD_DBusInterface, _KDE_DnD_DBusMethod);
-        message.setArguments(QVariantList() << m_dirModel->dirLister()->url().pathOrUrl());
-        QDBusConnection::sessionBus().call(message);
-        return;
-    }
-
-    QDropEvent ev(event->screenPos(), event->dropAction(), event->mimeData(),
-                  event->buttons(), event->modifiers());
-    KonqOperations::doDrop(m_dirModel->dirLister()->rootItem(), m_dirModel->dirLister()->url(),
-                           &ev, event->widget());
 }
 
 void StackFolder::dataAdded(const QModelIndex &parent, int start, int end)
@@ -505,7 +364,6 @@ void StackFolder::dataAdded(const QModelIndex &parent, int start, int end)
 	if (item.isFile()) {
 	    const KFileItem parentItem = m_model->itemForIndex(parent);
 	    if (m_downloadUrl.isParentOf(parentItem.url())) {
-	    //if (parentItem.iconName().contains("folder-downloads")) {
 		m_iconWidget->startAnimation();
 		return;
 	    }
@@ -513,50 +371,9 @@ void StackFolder::dataAdded(const QModelIndex &parent, int start, int end)
     }
 }
 
-
 void StackFolder::fileActivated()
 {
-    hideDialog();
-}
-
-void StackFolder::dialogHidden()
-{
-/*    if (m_needShow) {
-    	    m_delayedShowTimer.start(200, this);
-	else
-	    m_delayedShowTimer.start(100, this);
-	m_needShow = false;
-    }
-    else {
-*/
-    m_viewer->stop();
-
-    if (!m_folderChanging)
-    	if (!m_directory->isTopUrl()) {
-	    //withoutHiding = true;
-	    m_directory->setUrl(m_topUrl);
-	}
-	m_directory->emitDialogHidden();
-//    }
-}
-
-void StackFolder::showDialog()
-{
-    Plasma::WindowEffects::slideWindow(m_dialog, location());
-    m_dialog->show(this);
-}
-
-void StackFolder::hideDialog()
-{
-    Plasma::WindowEffects::slideWindow(m_dialog, location());
-    m_dialog->hide();
-}
-
-QSize StackFolder::iconSize() const
-{
-    const int defaultSize = KIconLoader::global()->currentSize( KIconLoader::Panel);
-    const int size = (m_customIconSize != 0) ? m_customIconSize : defaultSize;
-    return QSize(size, size);
+    hidePopup();
 }
 
 QSize StackFolder::sizeToFitIcons(const int count) const
@@ -596,33 +413,73 @@ QSize StackFolder::sizeToFitIcons(const int count) const
 
 void StackFolder::runViewer(const QString &path, int x, int y, int width, int height)
 {
-    m_viewer->run(path, x + m_dialog->x(), y + m_dialog->y(), width, height);
+    if (!view()) {
+        return;
+    }
+
+    QSize margin = QSize(12, 12); //style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
+
+    QSize s = m_graphicsWidget->size().toSize() + margin;
+    QPoint pos = popupPosition(s);
+    //qDebug() << "runViewer x=" << pos.x() << " y=" << pos.y();
+
+    m_viewer->run(path, x + pos.x(), y + pos.y(), width, height);
+}
+
+void StackFolder::iconWidgetDroppedItem(QGraphicsSceneDragDropEvent *event)
+{
+    const QString appletMimeType = static_cast<Plasma::Corona*>(scene())->appletMimeType();
+    if (event->mimeData()->hasFormat(appletMimeType)) {
+        event->ignore();
+        return;
+    }
+
+    QDropEvent ev(event->screenPos(), event->dropAction(), event->mimeData(),
+                  event->buttons(), event->modifiers());
+    KonqOperations::doDrop(m_dirModel->dirLister()->rootItem(), m_dirModel->dirLister()->url(),
+                           &ev, event->widget());
 }
 
 void StackFolder::activatedDragAndDrop(const KFileItem &item)
 {
+
     QMimeData *mime = new QMimeData;
     QList<QUrl> urls;
     urls.append(item.url());
     mime->setUrls(urls);
-    QDrag *drag = new QDrag(m_dialog); // Qt will delete drag & mime objects
+    QDrag *drag = new QDrag(view());
     drag->setMimeData(mime);
     QString local_path = item.localPath();
     PreviewGenerator *gen = PreviewGenerator::createInstance();
     Q_ASSERT(gen != 0);
 
     if (gen->hasPreviewPixmap(local_path)) {
-        int dpi_x = QApplication::desktop()->physicalDpiX();
-        int dpi_y = QApplication::desktop()->physicalDpiY();
-
-        int width  = int(_DragPreviewMaxSize * dpi_x + 0.5f);
-        int height = int(_DragPreviewMaxSize * dpi_y + 0.5f);
-
-        drag->setPixmap(gen->getPreviewPixmap(item.localPath()).scaled(width, height, Qt::KeepAspectRatio));
+        drag->setPixmap(gen->getPreviewPixmap(item.localPath()).scaled(KIconLoader::SizeMedium, KIconLoader::SizeMedium, Qt::KeepAspectRatio));
     }
     else
         drag->setPixmap(item.pixmap(0));
     drag->exec(Qt::CopyAction | Qt::MoveAction | Qt::LinkAction, Qt::CopyAction);
+}
+
+void StackFolder::popupEvent(bool show)
+{
+    if (show) {
+	//Dialog shown;
+    }
+    else {
+	//Dialog hidden;
+	if (m_needShow) {
+	    m_delayedShowTimer.start(200, this);
+	    m_needShow = false;
+	}
+	m_viewer->stop();
+	m_directory->emitDialogHidden();
+
+	if (!m_folderChanging) {
+    	    m_firstChangings = 0;
+	}
+    }
+    Plasma::PopupApplet::popupEvent(show);
 }
 
 bool StackFolder::eventFilter(QObject *watched, QEvent *event)
@@ -630,30 +487,32 @@ bool StackFolder::eventFilter(QObject *watched, QEvent *event)
     if (event->type() == QEvent::ContextMenu) {
         return false;
     }
-    return Applet::eventFilter(watched, event);
+    return Plasma::PopupApplet::eventFilter(watched, event);
 }
 
 void StackFolder::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == m_delayedShowTimer.timerId()) {
         m_delayedShowTimer.stop();
-	showDialog();
+	showPopup();
     }
-    Applet::timerEvent(event);
+    Plasma::PopupApplet::timerEvent(event);
 }
 
-QSizeF StackFolder::sizeHint(Qt::SizeHint which, const QSizeF &constraint) const
+void StackFolder::keyPressEvent(QKeyEvent *event)
 {
-
-    if (which == Qt::PreferredSize) {
-        if (!constraint.isEmpty()) {
-            return QSizeF(400, 400).boundedTo(constraint);
-        } else {
-            return QSizeF(400, 400);
-        }
+    if (event->key() == Qt::Key_Escape) {
+    	event->accept();
+        if (m_viewer && m_viewer->isRun()) {
+    	    m_viewer->stop();
+    	}
+    	else {
+	    hidePopup();
+    	}
     }
+    m_directory->emitKeyPressed(event);
 
-    return Applet::sizeHint(which, constraint);
+    Plasma::PopupApplet::keyPressEvent(event);
 }
 
 #include "stackfolder.moc"

@@ -68,7 +68,6 @@ Component {
 	    hoverEnabled: true
 
 	    onClicked: {
-		//console.log("onClicked")
 		directory.activate(index)
 	    }
 	    onEntered: {

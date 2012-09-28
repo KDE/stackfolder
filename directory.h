@@ -32,6 +32,7 @@
 #include <QTextStream>
 #include <QDeclarativeListProperty>
 #include <QObject>
+#include <QKeyEvent>
 
 #include <QBasicTimer>
 
@@ -84,6 +85,7 @@ class Directory : public QObject {
 
 	void setPreview(const KFileItem &item, const QPixmap &pixmap);
 	void emitDialogHidden();
+	void emitKeyPressed(const QKeyEvent *event);
 
         Q_INVOKABLE void back();
         Q_INVOKABLE void activate(int index);
@@ -100,6 +102,7 @@ class Directory : public QObject {
         void gotPreview(int i);
         void dataAdded(const QModelIndex &parent, int start, int end);
         void dialogHidden();
+        void keyPressed(const int key /*QKeyEvent *event*/, const int modifiers);
         void showRequested(const QString &path, int x, int y, int width, int height);
         void activatedDragAndDrop(const KFileItem &file_item);
 

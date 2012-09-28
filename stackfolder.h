@@ -25,13 +25,16 @@
 #include <QAbstractItemView>
 #include <QBasicTimer>
 //#include <QProcess>
-#include <Solid/Networking>
-#include <plasma/applet.h>
+//#include <Solid/Networking>
+#include <KIcon>
+#include <plasma/popupapplet.h>
 
 class QModelIndex;
 class QItemSelectionModel;
 class QGraphicsLinearLayout;
 class QDeclarativeView;
+class QSequentialAnimationGroup;
+class QPropertyAnimation;
 class KDirModel;
 class KFilePlacesModel;
 class ProxyModel;
@@ -43,62 +46,55 @@ class KFileItem;
 
 class DirModel;
 
-class StackFolder : public Plasma::Applet
+class StackFolder : public Plasma::PopupApplet
 {
     Q_OBJECT
-
 public:
     StackFolder(QObject *parent, const QVariantList &args);
     ~StackFolder();
+
+    QGraphicsWidget *graphicsWidget();
 
     void init();
     void configChanged();
 
 protected:
-    void constraintsEvent(Plasma::Constraints);
-    QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint) const;
     bool eventFilter(QObject *watched, QEvent *event);
     void timerEvent(QTimerEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+
+    void popupEvent(bool show);
 
 protected slots:
     void refreshIcons();
 
     void updateIconWidget();
-    void iconWidgetClicked();
-    void iconWidgetDroppedItem(QGraphicsSceneDragDropEvent*);
     void dataAdded(const QModelIndex &parent, int start, int end);
-    void dialogHidden();
     void folderChanged(const KUrl& url);
     void fontSettingsChanged();
-    void iconGeometryChanged();
     void themeChanged();
-    void networkStatusChanged(Solid::Networking::Status status);
     void fileActivated();
     void runViewer(const QString &path, int x, int y, int width, int height);
-    //void stopViewerProcess();
-    //void deleteViewerProcess(int exitCode, QProcess::ExitStatus exitStatus);
-    //void currentChanged(/*int index*/);
+    void iconWidgetClicked();
+    void iconWidgetDroppedItem(QGraphicsSceneDragDropEvent*);
     void activatedDragAndDrop(const KFileItem &item);
+    //void iconAnimationFinished();
 
 private:
     QColor textColor() const;
     void setUrl(const KUrl &url);
-    QSize iconSize() const;
-    void updateIconViewState();
     QSize sizeToFitIcons(const int count) const;
-    void showDialog();
-    void hideDialog();
 
 private:
-    Dialog *m_dialog;
+    //Dialog *m_dialog;
     Directory *m_directory;
     QGraphicsWidget *m_graphicsWidget;
-    QGraphicsLayoutItem *m_graphicsObject;
     QItemSelectionModel *m_selectionModel;
     ProxyModel *m_model;
     KDirModel *m_dirModel;
     KFilePlacesModel *m_placesModel;
     IconWidget *m_iconWidget;
+    KIcon m_icon;
     QDeclarativeView *m_declView;
     QGraphicsLinearLayout *m_layout;
     KUrl m_url;
@@ -117,10 +113,14 @@ private:
     QStringList m_previewPlugins;
     int m_customIconSize;
     int m_numTextLines;
-//    IconView::Flow m_flow;
     int m_firstChangings;
     bool m_folderChanging;
     bool m_needShow;
+    QSizeF m_popupIconSize;
+    QSequentialAnimationGroup *m_iconAnimationGroup;
+    QPropertyAnimation *m_iconAnimation1;
+    QPropertyAnimation *m_iconAnimation2;
+
 };
 
 #endif
