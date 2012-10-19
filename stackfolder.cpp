@@ -227,8 +227,8 @@ QGraphicsWidget *StackFolder::graphicsWidget()
     m_graphicsWidget->setLayout(m_layout);
 
     QGraphicsLinearLayout *lay = dynamic_cast<QGraphicsLinearLayout *>(layout());
-    lay->setContentsMargins(3, 0, 3, 6);
-    //lay->setContentsMargins(0, 0, 0, 0);
+    //lay->setContentsMargins(3, 0, 3, 6);
+    lay->setContentsMargins(0, 0, 0, 0);
     lay->setSpacing(0);
 
     return m_graphicsWidget;
