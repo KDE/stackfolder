@@ -211,7 +211,7 @@ QGraphicsWidget *StackFolder::graphicsWidget()
     m_engine->addImageProvider("mode", modeImageProvider);
     m_engine->addImageProvider("preview", previewImageProvider);
     m_engine->rootContext()->setContextProperty("directory", m_directory);
-    QString qmlMainFilePath = KStandardDirs::locate("data", "plasma/plasmoids/stackfolder/contents/ui/main.qml");
+    QString qmlMainFilePath = KStandardDirs::locate("data", "plasma/packages/org.kde.stackfolder/contents/ui/main.qml");
     QDeclarativeComponent component(m_engine, QUrl::fromLocalFile(qmlMainFilePath));
     QObject *object = component.create();
     QGraphicsLayoutItem *graphicsObject = qobject_cast<QGraphicsLayoutItem*>(object);

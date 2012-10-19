@@ -49,4 +49,4 @@ target_link_libraries(plasma_applet_stackfolder ${KDE4_PLASMA_LIBS} ${konq_lib}
 
 install(TARGETS plasma_applet_stackfolder DESTINATION ${PLUGIN_INSTALL_DIR})
 install(FILES plasma-applet-stackfolder.desktop DESTINATION ${SERVICES_INSTALL_DIR})
-install(DIRECTORY package/ DESTINATION ${DATA_INSTALL_DIR}/plasma/plasmoids/stackfolder)
+install(DIRECTORY package/ DESTINATION ${DATA_INSTALL_DIR}/plasma/packages/org.kde.stackfolder)
