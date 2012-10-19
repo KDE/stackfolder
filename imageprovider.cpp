@@ -36,7 +36,7 @@ QPixmap TypeImageProvider::requestPixmap(const QString &id, QSize *size, const Q
 
     if (size)
         *size = QSize(width, height);
-//qDebug("TypeImageProvider::requestPixmap() %s", id.toAscii().data());
+    //qDebug("TypeImageProvider::requestPixmap() %s", id.toAscii().data());
     return KIcon(id).pixmap(requestedSize.width() > 0 ? requestedSize.width() : width,
                     	    requestedSize.height() > 0 ? requestedSize.height() : height);
 };

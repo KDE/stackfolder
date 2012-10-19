@@ -37,18 +37,14 @@ Viewer::~Viewer()
 
 void Viewer::run(const QString &path, int x, int y, int width, int height)
 {
-    //qDebug() << "Viewer::run : m_process=" << bool(m_process);
     if (!m_process) {
-
-	//m_container = new QX11EmbedContainer;
-	//m_container->show();
 	QString executable;
 	QStringList paramList;
 
-	m_process = new QProcess(/*m_container*/);
-
 	executable = "killall";
 	paramList << "klook";
+
+	m_process = new QProcess();
 	m_process->start(executable, paramList);
 
     	if (!m_process->waitForFinished(3000)) {
@@ -56,10 +52,9 @@ void Viewer::run(const QString &path, int x, int y, int width, int height)
     	    return;
     	}
 
-	connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)), /*m_process*/this, SLOT(/*deleteLater*/erase(int, QProcess::ExitStatus)));
+	connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(erase(int, QProcess::ExitStatus)));
 
 	executable = "klook";
-	//QString executable("kwrite");
 	paramList.clear();
 	paramList << "--nofork";
 	paramList << "--embedded" << path;
@@ -68,10 +63,7 @@ void Viewer::run(const QString &path, int x, int y, int width, int height)
 	paramList << "-w" << QString::number(width);
 	paramList << "-h" << QString::number(height);
 
-	//paramList << QString::number(m_container->winId());
-
 	m_process->start(executable, paramList);
-	//qDebug() << "Viewer::run(): " << paramList;
 	if (!m_process->waitForStarted(3000)) {
     	    qDebug() << "Viewer::run(): Could not start Klook";
     	    return;
@@ -83,7 +75,6 @@ void Viewer::run(const QString &path, int x, int y, int width, int height)
 void Viewer::stop()
 {
     if (m_process) {
-	//qDebug() << "Viewer::stop:  process state" << m_process->state();
 	if (m_process->state() == QProcess::Running) {
     	    m_process->terminate();
     	    m_process->waitForFinished(3000);
@@ -98,7 +89,6 @@ void Viewer::erase(int exitCode, QProcess::ExitStatus exitStatus)
 
     if (m_process) {
 	delete m_process;
-	//delete m_container;
 	m_process = 0;
     }
 }

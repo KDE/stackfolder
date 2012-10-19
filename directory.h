@@ -54,7 +54,7 @@ class Directory : public QObject {
     Q_PROPERTY(QString path READ path)
     Q_PROPERTY(QDeclarativeListProperty<Directory> dirs READ dirs CONSTANT )
     Q_PROPERTY(QDeclarativeListProperty<File> files READ files CONSTANT )
-    Q_PROPERTY(QString dirname READ dirname WRITE setDirname /*NOTIFY dirnameChanged*/)
+    Q_PROPERTY(QString dirname READ dirname WRITE setDirname NOTIFY dirnameChanged)
     Q_PROPERTY(QString filename READ filename WRITE setFilename NOTIFY filenameChanged)
     Q_PROPERTY(QString fileContent READ fileContent WRITE setFileContent NOTIFY fileContentChanged)
 
@@ -89,13 +89,15 @@ class Directory : public QObject {
 
         Q_INVOKABLE void back();
         Q_INVOKABLE void activate(int index);
-        Q_INVOKABLE void show(int index, int x, int y, int width, int height);
+        Q_INVOKABLE void runViewer(int index, int x, int y, int width, int height);
+        Q_INVOKABLE void stopViewer();
         Q_INVOKABLE void open();
         Q_INVOKABLE void activateDragAndDrop(int index);
 
     signals:
         void directoryChanged();
         void errorReceived(const QString &message);
+        void dirnameChanged();
         void filenameChanged();
         void fileContentChanged();
         void fileActivated();
@@ -103,7 +105,8 @@ class Directory : public QObject {
         void dataAdded(const QModelIndex &parent, int start, int end);
         void dialogHidden();
         void keyPressed(const int key /*QKeyEvent *event*/, const int modifiers);
-        void showRequested(const QString &path, int x, int y, int width, int height);
+        void viewerRequested(const QString &path, int x, int y, int width, int height);
+        void viewerCanceled();
         void activatedDragAndDrop(const KFileItem &file_item);
 
     protected:

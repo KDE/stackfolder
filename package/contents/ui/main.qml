@@ -25,9 +25,8 @@ LayoutItem {
     id: root
 
     minimumSize: "120x170"
-    //preferredSize: "300x400"
 
-    signal currentChanged(/*int index*/)
+    signal currentChanged()
 
     Rectangle {
 	id: main
@@ -40,25 +39,11 @@ LayoutItem {
 
 	signal selectChanged()
 	signal notifyRefresh()
-//      signal currentChanged(/*int index*/)
 
 	onNotifyRefresh: {
 	    fileView.model = directory.files;
 	    dir.text = directory.dirname;
 	}
-
-	/*
-	Component.onCompleted: {
-	    plasmoid.setAspectRatioMode(IgnoreAspectRatio);
-	    plasmoid.addEventListener ('ConfigChanged', configChanged);
-	}
-
-	function configChanged() {
-	    var url = plasmoid.readConfig("url");
-	    if (url != directory.url())
-		directory.setUrl(url);
-	}
-	*/
 
 	Connections {
 	    target: directory
@@ -97,61 +82,9 @@ LayoutItem {
 	    onDialogHidden: {
 		fileView.currentIndex = -1 
 	    }
-
-
-        onKeyPressed: {
-	    console.log("onKeyPressed key=", key)
-
-	    if ((key == Qt.Key_Return) || (key == Qt.Key_Enter)) {
-		if (/*event.*/modifiers & Qt.AltModifier) {
-		    console.log("onAltEnterPressed")
-		    directory.open()
-		}
-		else {
-		    console.log("onReturnPressed")
-		    directory.activate(fileView.currentIndex)
-		}
-	    }
-	    else if (key == Qt.Key_Backspace) {
-	    	console.log("onBackspacePressed")
-		directory.back()
-	    }
-	    else if (key == Qt.Key_Space) {
-		console.log("onSpacePressed contentX="+fileView.contentX+" contentY="+fileView.contentY)
-		if (fileView.currentIndex != -1)
-		    directory.show(fileView.currentIndex, fileView.x + fileView.currentItem.x - fileView.contentX, fileView.y + fileView.currentItem.y - fileView.contentY, fileView.currentItem.width, fileView.currentItem.height)
-		else
-    		    if (fileView.hoveredIndex != -1)
-			directory.show(fileView.hoveredIndex, fileView.x + fileView.hoveredItem.x - fileView.contentX, fileView.y + fileView.hoveredItem.y - fileView.contentY, fileView.hoveredItem.width, fileView.hoveredItem.height)
-	    }
-	    else if (key == Qt.Key_Left) {
-		fileView.moveCurrentIndexLeft()
-	    }
-	    else if (key == Qt.Key_Up) {
-		fileView.moveCurrentIndexUp()
-	    }
-	    else if (key == Qt.Key_Right) {
-		fileView.moveCurrentIndexRight()
-	    }
-	    else if (key == Qt.Key_Down) {
-		fileView.moveCurrentIndexDown()
-	    }
-
-	    /*
-	    else if (key == Qt.Key_Tab) {
-		fileView.moveCurrentIndexRight()
-	    }
-	    else if (key == Qt.Key_Backtab) {
-		fileView.moveCurrentIndexLeft()
-	    }
-	    */
 	}
 
-
-
-	}
-
-	Row {
+	Item {
 	    id: caption
 	    width:parent.width
 	    height: 40
@@ -175,7 +108,7 @@ LayoutItem {
 		id: dir
 		width: parent.width - /*backButton.width - openButton.width*/ 44 - 20
 		text: directory.dirname
-		color: "white" //"#000000"
+		color: "white"
 		font.pixelSize: font.pixelSize+2; font.bold: true
 		horizontalAlignment: Text.AlignHCenter
 		elide: Text.ElideMiddle
@@ -230,7 +163,7 @@ LayoutItem {
 
 	    onCurrentIndexChanged: {
 	    	//console.log("onCurrentIndexChanged")
-                root/*main*/.currentChanged(/*fileView.currentIndex*/)
+                root.currentChanged()
 	    }
 
 	    ScrollBar {
@@ -245,7 +178,7 @@ LayoutItem {
 	    id: errorMessage
 	    text: ""
 	    font.bold: true
-	    color: "white" //"#000000"
+	    color: "white"
 	    elide: Text.ElideMiddle
 	    horizontalAlignment: Text.AlignHCenter
 	    anchors.verticalCenter: fileView.verticalCenter
@@ -269,22 +202,18 @@ LayoutItem {
 		directory.back()
 	    }
 	    else if (event.key == Qt.Key_Space) {
-		console.log("onSpacePressed contentX="+fileView.contentX+" contentY="+fileView.contentY)
+		//console.log("onSpacePressed contentX="+fileView.contentX+" contentY="+fileView.contentY)
 		if (fileView.currentIndex != -1)
-		    directory.show(fileView.currentIndex, fileView.x + fileView.currentItem.x - fileView.contentX, fileView.y + fileView.currentItem.y - fileView.contentY, fileView.currentItem.width, fileView.currentItem.height)
+		    directory.runViewer(fileView.currentIndex, fileView.x + fileView.currentItem.x - fileView.contentX, fileView.y + fileView.currentItem.y - fileView.contentY, fileView.currentItem.width, fileView.currentItem.height)
 		else
     		    if (fileView.hoveredIndex != -1)
-			directory.show(fileView.hoveredIndex, fileView.x + fileView.hoveredItem.x - fileView.contentX, fileView.y + fileView.hoveredItem.y - fileView.contentY, fileView.hoveredItem.width, fileView.hoveredItem.height)
+			directory.runViewer(fileView.hoveredIndex, fileView.x + fileView.hoveredItem.x - fileView.contentX, fileView.y + fileView.hoveredItem.y - fileView.contentY, fileView.hoveredItem.width, fileView.hoveredItem.height)
 	    }
-
-	    /*
-	    else if (event.key == Qt.Key_Tab) {
-		fileView.moveCurrentIndexRight()
+	    else if (event.key == Qt.Key_Escape) {
+	        //console.log("onEscapePressed")
+		directory.stopViewer()
+		event.accepted = true
 	    }
-	    else if (event.key == Qt.Key_Backtab) {
-		fileView.moveCurrentIndexLeft()
-	    }
-	    */
 	}
 
     }

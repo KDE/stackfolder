@@ -24,8 +24,6 @@
 
 #include <QAbstractItemView>
 #include <QBasicTimer>
-//#include <QProcess>
-//#include <Solid/Networking>
 #include <KIcon>
 #include <plasma/popupapplet.h>
 
@@ -49,6 +47,8 @@ class DirModel;
 class StackFolder : public Plasma::PopupApplet
 {
     Q_OBJECT
+    Q_PROPERTY(QSizeF popupIconSize READ popupIconSize WRITE setPopupIconSize )
+
 public:
     StackFolder(QObject *parent, const QVariantList &args);
     ~StackFolder();
@@ -56,13 +56,21 @@ public:
     QGraphicsWidget *graphicsWidget();
 
     void init();
+    void paintInterface(QPainter *painter, const QStyleOptionGraphicsItem *option, const QRect &contents);
     void configChanged();
+
+    QSizeF popupIconSize() const;
+    void setPopupIconSize(QSizeF size);
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event);
     void timerEvent(QTimerEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
+    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+    void dropEvent(QGraphicsSceneDragDropEvent *event);
 
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
     void popupEvent(bool show);
 
 protected slots:
@@ -75,25 +83,24 @@ protected slots:
     void themeChanged();
     void fileActivated();
     void runViewer(const QString &path, int x, int y, int width, int height);
-    void iconWidgetClicked();
-    void iconWidgetDroppedItem(QGraphicsSceneDragDropEvent*);
+    void stopViewer();
     void activatedDragAndDrop(const KFileItem &item);
-    //void iconAnimationFinished();
+    void iconAnimationFinished();
 
 private:
     QColor textColor() const;
     void setUrl(const KUrl &url);
     QSize sizeToFitIcons(const int count) const;
+    void startAnimation();
+    void stopAnimation();
 
 private:
-    //Dialog *m_dialog;
     Directory *m_directory;
     QGraphicsWidget *m_graphicsWidget;
     QItemSelectionModel *m_selectionModel;
     ProxyModel *m_model;
     KDirModel *m_dirModel;
     KFilePlacesModel *m_placesModel;
-    IconWidget *m_iconWidget;
     KIcon m_icon;
     QDeclarativeView *m_declView;
     QGraphicsLinearLayout *m_layout;
@@ -116,6 +123,8 @@ private:
     int m_firstChangings;
     bool m_folderChanging;
     bool m_needShow;
+    bool m_hoverShow;
+    bool m_hoverState;
     QSizeF m_popupIconSize;
     QSequentialAnimationGroup *m_iconAnimationGroup;
     QPropertyAnimation *m_iconAnimation1;

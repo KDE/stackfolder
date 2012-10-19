@@ -22,21 +22,18 @@
 #include "directory.h"
 
 #include <QAbstractItemView>
-//#include <QCoreApplication>
 
 #include <KDirModel>
 #include <KDirLister>
-//#include <KFileItemList>
 #include <KFilePreviewGenerator>
 #include <KUrl>
 #include <KDebug>
-//#include <KRun>
 #include <krun.h>
 
 #include "proxymodel.h"
 #include "previewgenerator.h"
 
-Directory::Directory(/*ProxyModel *model, KUrl &url,*/ QObject *parent)
+Directory::Directory(QObject *parent)
     : QObject(parent),
     m_folderIsEmpty(false),
     m_directoryChanging(false)
@@ -175,7 +172,7 @@ QDeclarativeListProperty<File> Directory::files()
 
 QString Directory::dirname() const
 {
-    return m_url.fileName(KUrl::IgnoreTrailingSlash);//m_dir.dirName();
+    return m_url.fileName(KUrl::IgnoreTrailingSlash);
 }
 
 QString Directory::filename() const
@@ -191,10 +188,6 @@ QString Directory::fileContent() const
 void Directory::setDirname(const QString &str)
 {
     Q_UNUSED(str);
-
-    //if( str != m_dir.dirName() ) {
-//	m_dir.cd(str);
-//    }
 }
 
 void Directory::setFilename(const QString &str)
@@ -215,7 +208,6 @@ void Directory::setFileContent(const QString &str)
 
 void Directory::back()
 {
-    //qDebug("BACK: %s", m_url.path().toAscii().data());
     if(!isTopUrl()) {
 	setUrl(m_url.upUrl());
     }
@@ -223,47 +215,36 @@ void Directory::back()
 
 void Directory::activate(int index)
 {
-    //qDebug("ACTIVATE");
-    const QModelIndex modelIndex = /*m_dirM*/m_model->index(index, 0);
-    const KFileItem item = /*m_dirM*/m_model->itemForIndex(modelIndex);
+    const QModelIndex modelIndex = m_model->index(index, 0);
+    const KFileItem item = m_model->itemForIndex(modelIndex);
 
     if (item.isDir()) {
-	//qDebug("DIR: %s", item.url().path().toAscii().data());
 	setUrl(item.url());
-	//m_url = item.url();
-	//m_dirModel->dirLister()->openUrl(item.url()/*, KDirLister::Reload*/);
     }
     else if (item.isFile()) {
-	//qDebug("FILE: %s", item.url().path().toAscii().data());
   	item.run();
   	emit fileActivated();
     }
 }
 
-void Directory::show(int index, int x, int y, int width, int height)
+void Directory::runViewer(int index, int x, int y, int width, int height)
 {
-    //qDebug("SHOW");
     const QModelIndex modelIndex = m_model->index(index, 0);
     const KFileItem item = m_model->itemForIndex(modelIndex);
+    const int margin  = 10;
 
-    qDebug() << "Directory::show()";
-    //if (item.isFile()) {
-	const int margin  = 10;
-    //qDebug() << "Directory::show i=" << index << " x=" << x+20 << " y=" <<  y+10 << " w=" <<  width << " h=" <<  height;
-	//QString cmd = "klook " + item.url().path();// + "-c 100 200 64 64";
-	//QString coords = QString("%1 %2 %3 %4").arg(x + 3 * margin).arg(y).arg(width).arg(height);
-	//QString cmd = "klook --embedded " + item.url().path() + " -c " + coords;
-	//qDebug() << "run cmd: " << cmd;
-	//KRun::runCommand(cmd, NULL);
-	emit showRequested(item.url().path(), x + 2 * margin, y + 1 * margin, width, height);
-    //}
+    emit viewerRequested(item.url().path(), x + 2 * margin, y + 1 * margin, width, height);
+}
+
+void Directory::stopViewer()
+{
+    emit viewerCanceled();
 }
 
 void Directory::open()
 {
-    //qDebug("OPEN");
-    const QModelIndex index = /*m_dirM*/m_model->indexForUrl(m_url);
-    const KFileItem item = /*m_dirM*/m_model->itemForIndex(index);
+    const QModelIndex index = m_model->indexForUrl(m_url);
+    const KFileItem item = m_model->itemForIndex(index);
     if (m_errorMessage.isEmpty()) {
 	item.run();
 	emit fileActivated();
@@ -285,7 +266,6 @@ void Directory::rowsInserted(const QModelIndex &parent, int start, int end)
 void Directory::listingStarted(const KUrl &url)
 {
     Q_UNUSED(url)
-    //kDebug() << "Directory::listingStarted" << url;
     if (!m_errorMessage.isEmpty() || m_folderIsEmpty) {
         m_errorMessage.clear();
         m_folderIsEmpty = false;
@@ -350,10 +330,6 @@ void Directory::refresh()
     m_fileList.clear();
     m_previewFileList.clear();
 
-    //QStringList fileList;
-    //KFileItemList fileList;
-
-    //qDebug("REFRESH: %d", m_model->rowCount());
     File * file;
     for(int i = 0; i < m_model->rowCount() ; i++) {
 	QModelIndex index = m_model->index(i, 0);
@@ -363,37 +339,20 @@ void Directory::refresh()
         file->setIconName(item.iconName());
         //file->setPixmap(item.pixmap(64));
         file->setPath(path()+item.name());
-	//qDebug("iconName %s", item.iconName().toAscii().data());
         m_fileList.append(file);
 
-	if (!item.isDir())
+	if (!item.isDir()) {
     	    m_previewFileList.append(item);
-    	    //fileList.append(item);
+        }
     }
-    //qDebug() << "Directory::refresh()" << fileList;
-    //m_delayedPreviewTimer.start(5000, this);
     m_previewGenerator->start(this, m_previewFileList);
 }
 
 void Directory::setPreview(const KFileItem &item, const QPixmap &pixmap)
 {
     Q_UNUSED(pixmap);
-/*
-    if (item.localPath() != path()) {
-	qDebug() << "setPreview: wrong path";
-    	return;
-    }
-*/
-/*
-    //QModelIndex index = m_dirModel->indexForItem(item);
-    for(int i = 0; i < m_model->rowCount() ; i++) {
-	QModelIndex index = m_model->index(i, 0);
-	KFileItem item = m_model->itemForIndex(index);
-	qDebug() << "PreviewGenerator::setPreview i="<< i <<"  " << item.url();
-    }
-*/
     QModelIndex index = m_model->indexForUrl(item.url());
-    //qDebug() << "PreviewGenerator::setPreview  url=" << item.url() << " row=" << index.row();
+    //qDebug() << "PreviewGenerator::setPreview()  url=" << item.url() << " row=" << index.row();
     if (index.row() >= 0 && index.row() < m_fileList.count()) {
 	File *file = m_fileList.at(index.row());
 	file->setPixmap(pixmap);

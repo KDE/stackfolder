@@ -63,11 +63,8 @@ void File::setIconName(const QString &str){
 }
 
 void File::setPixmap(const QPixmap &px){
-    //if(px != m_pixmap){
-        m_pixmap = px;
-	//qDebug() << "File::setPixmap  path=" << m_path;
-        emit pixmapChanged();
-    //}
+    m_pixmap = px;
+    emit pixmapChanged();
 }
 
 

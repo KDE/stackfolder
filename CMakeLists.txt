@@ -3,6 +3,19 @@ project(stackfolder)
 find_package(KDE4 REQUIRED)
 include(KDE4Defaults)
 
+find_library(konq_lib NAMES konq DOC "konq library")
+find_path(konq_inc "konq_operations.h" DOC "Icnlude dir for konq")
+
+if(NOT konq_lib)
+    message(FATAL_ERROR "konq library isn't found")
+endif()
+
+if(NOT konq_inc)
+    message(FATAL_ERROR "development files for konq library aren't found")
+endif()
+
+message(STATUS "Found konq library: ${konq_lib}")
+message(STATUS "Found konq library include dir: ${konq_inc}")
 
 set(QT_USE_QTMAIN TRUE)
 set(QT_USE_QTDECLARATIVE TRUE)
@@ -14,6 +27,7 @@ include_directories(
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
    ${KDE4_INCLUDES}
+    ${konq_inc}
    )
 
 set(stackfolder_SRCS
@@ -24,13 +38,12 @@ set(stackfolder_SRCS
     previewgenerator.cpp
     directory.cpp
     file.cpp
-    iconwidget.cpp
     viewer.cpp
     )
 
 
 kde4_add_plugin(plasma_applet_stackfolder ${stackfolder_SRCS})
-target_link_libraries(plasma_applet_stackfolder ${KDE4_PLASMA_LIBS} konq
+target_link_libraries(plasma_applet_stackfolder ${KDE4_PLASMA_LIBS} ${konq_lib}
                       ${KDE4_KIO_LIBS} ${KDE4_KFILE_LIBS} ${KDE4_SOLID_LIBS}
                       ${X11_LIBRARIES} ${QT_LIBRARIES})
 
