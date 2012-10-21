@@ -2,6 +2,7 @@
 Name=Stack Folder
 Name[da]=Stakmappe
 Name[de]=Ordnerstapel
+Name[el]=Στοίβα φακέλων
 Name[es]=Apilar carpeta
 Name[et]=Kataloogipinu
 Name[fr]=Présentoir
@@ -18,6 +19,7 @@ Name[x-test]=xxStack Folderxx
 Comment=Browse the stack of folders
 Comment[da]=Gennemse en stak af mapper
 Comment[de]=Ordnerstapel durchsuchen
+Comment[el]=Περιηγηθείτε στη στοίβα των φακέλων
 Comment[es]=Explorar la pila de carpetas
 Comment[et]=Kataloogipinu sirvimine
 Comment[fr]=Parcourt la pile des dossiers
