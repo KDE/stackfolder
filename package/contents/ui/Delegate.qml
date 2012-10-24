@@ -20,6 +20,7 @@
 */
 
 import QtQuick 1.1
+import Effects 1.0
 
 Component {
     id: fileDelegate
@@ -60,6 +61,12 @@ Component {
 	    wrapMode: Text.Wrap
 	    maximumLineCount: 2
 	    horizontalAlignment: Text.AlignHCenter
+            effect: DropShadow {
+                    blurRadius: 3
+                    color: Qt.rgba(0, 0, 0, 1)
+                    xOffset: 0.3
+                    yOffset: 0.7
+            }
 	}
 
 	MouseArea {

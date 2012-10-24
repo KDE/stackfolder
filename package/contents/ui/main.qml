@@ -20,6 +20,7 @@
 */
 
 import QtQuick 1.1
+import Effects 1.0
 
 LayoutItem {
     id: root
@@ -115,6 +116,12 @@ LayoutItem {
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.verticalCenter: parent.verticalCenter
 		opacity: 0.5
+                effect: DropShadow {
+                    blurRadius: 3
+                    color: Qt.rgba(0, 0, 0, 1)
+                    xOffset: 0.3
+                    yOffset: 0.7
+                }
 	    }
 
 	    Button {

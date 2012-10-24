@@ -37,6 +37,7 @@
 #include <QDBusConnection>
 #include <QSequentialAnimationGroup>
 #include <QPropertyAnimation>
+#include <QGraphicsDropShadowEffect>
 
 #include <KDirModel>
 #include <KDirLister>
@@ -205,6 +206,7 @@ QGraphicsWidget *StackFolder::graphicsWidget()
     connect(m_directory, SIGNAL(activatedDragAndDrop(const KFileItem&)), this, SLOT(activatedDragAndDrop(const KFileItem&)));
 
     qmlRegisterType<File>("File", 1, 0, "File");
+    qmlRegisterType<QGraphicsDropShadowEffect>("Effects", 1, 0, "DropShadow");
 
     QDeclarativeEngine *m_engine = new QDeclarativeEngine;
     m_engine->addImageProvider("type", typeImageProvider);
