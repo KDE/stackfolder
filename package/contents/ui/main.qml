@@ -21,6 +21,7 @@
 
 import QtQuick 1.1
 import Effects 1.0
+import org.kde.plasma.core 0.1 as PlasmaCore
 
 LayoutItem {
     id: root
@@ -28,6 +29,10 @@ LayoutItem {
     minimumSize: "120x170"
 
     signal currentChanged()
+
+    PlasmaCore.Theme {
+	id: theme
+    }
 
     Rectangle {
 	id: main
@@ -107,21 +112,24 @@ LayoutItem {
 
 	    Text {
 		id: dir
-		width: parent.width - /*backButton.width - openButton.width*/ 44 - 20
 		text: directory.dirname
-		color: "white"
-		font.pixelSize: font.pixelSize+2; font.bold: true
+		color: theme.textColor
+		//font.pixelSize: theme.desktopFont.pixelSize + 2
+		font.pixelSize: font.pixelSize + 2
+		font.bold: true
 		horizontalAlignment: Text.AlignHCenter
 		elide: Text.ElideMiddle
 		anchors.horizontalCenter: parent.horizontalCenter
 		anchors.verticalCenter: parent.verticalCenter
 		opacity: 0.5
+                /*
                 effect: DropShadow {
                     blurRadius: 3
                     color: Qt.rgba(0, 0, 0, 1)
                     xOffset: 0.3
                     yOffset: 0.7
                 }
+                */
 	    }
 
 	    Button {

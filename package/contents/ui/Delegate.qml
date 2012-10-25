@@ -21,6 +21,7 @@
 
 import QtQuick 1.1
 import Effects 1.0
+import org.kde.plasma.core 0.1 as PlasmaCore
 
 Component {
     id: fileDelegate
@@ -30,43 +31,35 @@ Component {
 	width: GridView.view.cellWidth
 	height: GridView.view.cellHeight
 
-	Item {
-	    id: spacer1
-	    anchors.top: parent.top
-	    height: 10
-	}
-
 	Image {
 	    id: icon
 	    source: "image://type/"+iconName
-	    anchors.top: spacer1.bottom
+	    anchors.top: parent.top
+	    anchors.topMargin: 10
 	    anchors.horizontalCenter: parent.horizontalCenter 
-	}
-
-	Item {
-	    id: spacer2
-	    anchors.top: icon.bottom
-	    height: 2
 	}
 
 	Text {
 	    id:fileName
 	    width: parent.width - 10
-	    anchors.top: spacer2.bottom
+	    anchors.top: icon.bottom
+	    anchors.topMargin: 2
 	    anchors.horizontalCenter: parent.horizontalCenter
 	    text: name
-	    color: "white"
+	    color: theme.textColor
 	    font.bold: true
 	    elide: Text.ElideRight
 	    wrapMode: Text.Wrap
 	    maximumLineCount: 2
 	    horizontalAlignment: Text.AlignHCenter
+	    /*
             effect: DropShadow {
                     blurRadius: 3
                     color: Qt.rgba(0, 0, 0, 1)
                     xOffset: 0.3
                     yOffset: 0.7
             }
+            */
 	}
 
 	MouseArea {
@@ -101,8 +94,8 @@ Component {
 	    onPixmapChanged: {
 		//console.log("onPixmapChanged index="+index+" name="+name);
 		icon.source = "image://preview/"+directory.path+name
-		spacer1.height =  10 + (32 - icon.sourceSize.height/2)
-		spacer2.height =  2 + (32 - icon.sourceSize.height/2)
+		icon.anchors.topMargin =  10 + (32 - icon.sourceSize.height/2)
+		fileName.anchors.topMargin =  2 + (32 - icon.sourceSize.height/2)
 	    }
 	}
 
