@@ -4,7 +4,7 @@
  *   	      Evgeniy Auzhin <evgeniy.augin@osinit.ru>,
  *   	      Sergey Borovkov <sergey.borovkov@osinit.ru>,
  *   	      Ural Mullabaev <ural.mullabaev@rosalab.ru>
- *   License: GPLv3
+ *   License: GPLv2+
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as

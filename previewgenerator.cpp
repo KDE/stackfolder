@@ -1,6 +1,6 @@
 /*   StackFolder
  *   Copyright (c) 2011-2012 ROSA  <support@rosalab.ru>
- *   License: GPLv3
+ *   License: GPLv2+
  *   Authors: Julia Mineeva <julia.mineeva@osinit.ru>,
  *   	      Evgeniy Auzhin <evgeniy.augin@osinit.ru>,
  *   	      Sergey Borovkov <sergey.borovkov@osinit.ru>,

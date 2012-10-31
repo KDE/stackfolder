@@ -1,6 +1,6 @@
 /*   StackFolder
  *   Copyright © 2012 ROSA  <support@rosalab.ru>
- *   License: GPLv3+
+ *   License: GPLv2+
  *   Authors: Ural Mullabaev <ural.mullabaev@rosalab.ru>
  *
  *   This program is free software; you can redistribute it and/or modify
