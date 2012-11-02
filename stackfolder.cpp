@@ -137,9 +137,9 @@ void StackFolder::init()
         QString path = QDir::homePath();
         m_url = config().readEntry("url", KUrl(path));
         QDir dir(m_url.path());
-	if (!dir.exists()) {
+        if (!dir.exists()) {
     	    m_url = KUrl(path);
-	}
+        }
     } else {
         config().writeEntry("url", m_url);
     }
@@ -148,10 +148,12 @@ void StackFolder::init()
 
     QProcess proc;
     proc.start( QString::fromLatin1("xdg-user-dir"), QStringList() << QString::fromLatin1("DOWNLOAD") );
-    if (proc.waitForStarted() && proc.waitForFinished())
+    if (proc.waitForStarted() && proc.waitForFinished()) {
         m_downloadUrl = KUrl(QString::fromLocal8Bit(proc.readAll()).trimmed());
-    else
-	m_downloadUrl = KUrl();
+    }
+    else {
+        m_downloadUrl = KUrl();
+    }
 
     m_firstChangings = 0;
     m_folderChanging = false;
@@ -163,9 +165,9 @@ void StackFolder::init()
 StackFolder::~StackFolder()
 {
     if (m_iconAnimationGroup) {
-	delete m_iconAnimationGroup;
-	delete m_iconAnimation1;
-	delete m_iconAnimation2;
+        delete m_iconAnimationGroup;
+        delete m_iconAnimation1;
+        delete m_iconAnimation2;
     }
 }
 
@@ -243,27 +245,27 @@ void StackFolder::paintInterface(QPainter *p, const QStyleOptionGraphicsItem *op
     Q_UNUSED(contentsRect);
 
     if (m_placesModel && m_iconAnimationGroup->state() != QAbstractAnimation::Stopped) {
-	if (m_hoverState) {
-	    stopAnimation();
-	}
-	else {
-	    setPopupIcon(m_icon.pixmap(m_popupIconSize.width(), m_popupIconSize.height()));
-	    return;
-	}
+        if (m_hoverState) {
+            stopAnimation();
+        }
+        else {
+            setPopupIcon(m_icon.pixmap(m_popupIconSize.width(), m_popupIconSize.height()));
+            return;
+        }
     }
 
     if (m_hoverShow) {
-	if (m_hoverState) {
+        if (m_hoverState) {
     	    QPixmap pixmap = m_icon.pixmap(geometry().width(), geometry().height());
     	    QPixmap alphaMask(pixmap.width(), pixmap.height());
     	    const QColor color(127, 127, 127);
     	    alphaMask.fill(color);
     	    pixmap.setAlphaChannel(alphaMask);
 	    setPopupIcon(pixmap);
-	}
-	else {
-	    setPopupIcon(m_icon);
-	}
+        }
+        else {
+            setPopupIcon(m_icon);
+        }
     }
 }
 
@@ -284,18 +286,20 @@ void StackFolder::folderChanged(const KUrl& url)
 
     if (m_graphicsWidget) {
 
-	m_folderChanging = true;
-	//qDebug() << "StackFolder::folderChanged():  m_folderChanging = " <<  m_folderChanging << "m_firstChangings = " << m_firstChangings;
+        m_folderChanging = true;
+        //qDebug() << "StackFolder::folderChanged():  m_folderChanging = " <<  m_folderChanging << "m_firstChangings = " << m_firstChangings;
 
-	if (isPopupShowing() && m_firstChangings > 1) {
-	    m_needShow = true;
-	    hidePopup();
-	}
+        if (isPopupShowing() && m_firstChangings > 1) {
+            m_needShow = true;
+            hidePopup();
+        }
 
-        if (m_downloadUrl.isParentOf(url))
-	    m_model->sort(KDirModel::ModifiedTime);
-	else
+        if (m_downloadUrl.isParentOf(url)) {
+            m_model->sort(KDirModel::ModifiedTime);
+        }
+	else {
 	    m_model->sort(KDirModel::Name);
+    }
 
 	const int count = m_dirModel->dirLister()->itemsForDir(url).count();
 	QSize size = sizeToFitIcons(count);
@@ -304,8 +308,9 @@ void StackFolder::folderChanged(const KUrl& url)
   	m_graphicsWidget->setMinimumSize(size);
   	m_graphicsWidget->setMaximumSize(size);
 
-	if (m_firstChangings == 1)
+	if (m_firstChangings == 1) {
 	    m_firstChangings = 2;
+    }
 	m_folderChanging = false;
 	//qDebug() << "StackFolder::folderChanged() <<  m_folderChanging = " <<  m_folderChanging << "m_firstChangings = " << m_firstChangings;
 
@@ -335,21 +340,23 @@ void StackFolder::refreshIcons()
 void StackFolder::updateIconWidget()
 {
     if (!m_placesModel) {
-	m_placesModel = new KFilePlacesModel(this);
+        m_placesModel = new KFilePlacesModel(this);
 
-        const QModelIndex index = m_placesModel->closestItem(m_topUrl);
-	const KUrl url = m_placesModel->url(index);
+        const QModelIndex
+        index = m_placesModel->closestItem(m_topUrl);t KUrl url = m_placesModel->url(index);
 
-	KFileItem item = m_dirModel->itemForIndex(QModelIndex());
+        KFileItem item = m_dirModel->itemForIndex(QModelIndex());
 
         if (!item.isNull() && item.iconName() != "inode-directory") {
-	    m_icon = KIcon(item.iconName(), 0, item.overlays());
-        } else if (m_topUrl.protocol() == "desktop") {
-	    m_icon = KIcon("user-desktop");
-        } else if (m_topUrl.protocol() == "trash") {
-	    m_icon = m_model->rowCount() > 0 ? KIcon("user-trash-full") : KIcon("user-trash");
-        } else if (index.isValid() && url.equals(m_topUrl, KUrl::CompareWithoutTrailingSlash)) {
-	    m_icon = m_placesModel->icon(index);
+            m_icon = KIcon(item.iconName(), 0, item.overlays());
+        } 
+        else if (m_topUrl.protocol() == "desktop") {
+            m_icon = KIcon("user-desktop");
+        } 
+        else if (m_topUrl.protocol() == "trash") {
+            m_icon = m_model->rowCount() > 0 ? KIcon("user-trash-full") : KIcon("user-trash");
+        else if (index.isValid() && url.equals(m_topUrl, KUrl::CompareWithoutTrailingSlash)) {
+            m_icon = m_placesModel->icon(index);
         }
 
         m_iconAnimation1 = new QPropertyAnimation(this, "popupIconSize");
@@ -382,8 +389,8 @@ void StackFolder::dataAdded(const QModelIndex &parent, int start, int end)
 	if (item.isFile()) {
 	    const KFileItem parentItem = m_model->itemForIndex(parent);
 	    if (m_downloadUrl.isParentOf(parentItem.url())) {
-		startAnimation();
-		return;
+            startAnimation();
+            return;
 	    }
 	}
     }
@@ -408,18 +415,24 @@ QSize StackFolder::sizeToFitIcons(const int count) const
     int rows = sqrt(count);
     int cols = rows--;
 
-    if (rows <= 0)
+    if (rows <= 0) {
   		rows = 1;
-    if (cols <= 0)
+    }
+    if (cols <= 0) {
   		cols = 1;
-  	if (rows > maxRows)
+    }
+  	if (rows > maxRows) {
   		rows = maxRows;
-  	if (cols > maxCols)
+    }
+  	if (cols > maxCols) {
   		cols = maxCols;
-    while (((rows == 1 && cols < 4) || (rows == 2 && cols < 5) || (rows > 2 && cols < 2 * rows)) && cols <  maxCols && rows * cols < count)
+    }
+    while (((rows == 1 && cols < 4) || (rows == 2 && cols < 5) || (rows > 2 && cols < 2 * rows)) && cols <  maxCols && rows * cols < count) {
     	cols++;
-    while (rows <  maxRows && rows * cols < count)
+    }
+    while (rows <  maxRows && rows * cols < count) {
     	rows++;
+    }
 
 
     QSize viewSize = QSize(cols*120, rows*120);
@@ -486,8 +499,8 @@ void StackFolder::startAnimation()
 void StackFolder::stopAnimation()
 {
     if (m_iconAnimationGroup->state() != QAbstractAnimation::Stopped) {
-	m_iconAnimationGroup->stop();
-	setPopupIcon(m_icon);
+        m_iconAnimationGroup->stop();
+        setPopupIcon(m_icon);
     }
 }
 
@@ -575,16 +588,16 @@ void StackFolder::popupEvent(bool show)
 	}
     }
     else {
-	if (m_needShow) {
-	    m_delayedShowTimer.start(200, this);
-	    m_needShow = false;
-	}
-	m_viewer->stop();
-	m_directory->emitDialogHidden();
+        if (m_needShow) {
+            m_delayedShowTimer.start(200, this);
+            m_needShow = false;
+        }
+        m_viewer->stop();
+        m_directory->emitDialogHidden();
 
-	if (!m_folderChanging) {
-    	    m_firstChangings = 0;
-	}
+        if (!m_folderChanging) {
+            m_firstChangings = 0;            
+        }
     }
     Plasma::PopupApplet::popupEvent(show);
 }
@@ -601,7 +614,7 @@ void StackFolder::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == m_delayedShowTimer.timerId()) {
         m_delayedShowTimer.stop();
-	showPopup();
+        showPopup();
     }
     Plasma::PopupApplet::timerEvent(event);
 }

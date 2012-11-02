@@ -34,8 +34,9 @@ QPixmap TypeImageProvider::requestPixmap(const QString &id, QSize *size, const Q
     const int width = 64;
     const int height = 64;
 
-    if (size)
+    if (size) {
         *size = QSize(width, height);
+    }
     //qDebug("TypeImageProvider::requestPixmap() %s", id.toAscii().data());
     return KIcon(id).pixmap(requestedSize.width() > 0 ? requestedSize.width() : width,
                     	    requestedSize.height() > 0 ? requestedSize.height() : height);
@@ -53,8 +54,9 @@ QPixmap ModeImageProvider::requestPixmap(const QString &id, QSize *size, const Q
     const int width = 22;
     const int height = 22;
 
-    if (size)
+    if (size) {
         *size = QSize(width, height);
+    }
 
     QStringList list = id.split("/");
     if (list.count() > 1) {
@@ -62,15 +64,18 @@ QPixmap ModeImageProvider::requestPixmap(const QString &id, QSize *size, const Q
 	QIcon icon = KIcon(list[1]);
 	QIcon::Mode mode;
 	//if (icon != null) {
-	    if (str.contains("disabled"))
+	    if (str.contains("disabled")) {
 		mode = QIcon::Disabled;
-	    else if (str.contains("active"))
+	    }
+	    else if (str.contains("active")) {
 		mode = QIcon::Active;
-	    else if (str.contains("selected")) {
+	    }
+	    else if (str.contains("selected")) { 
 		mode = QIcon::Selected;
 	    }
-	    else
+	    else {
 		mode = QIcon::Normal;
+	    }
 
 	    QPixmap pixmap = icon.pixmap(*size, mode);
 	    //if (mode == QIcon::Selected)
@@ -92,8 +97,9 @@ QPixmap PreviewImageProvider::requestPixmap(const QString &id, QSize *size, cons
     const int width = 64;
     const int height = 64;
 
-    if (size)
+    if (size) {
         *size = QSize(width, height);
+    }
 
     //qDebug("PreviewImageProvider::requestPixmap() %s", id.toAscii().data());
 

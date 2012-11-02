@@ -31,45 +31,53 @@ File::File(QObject *parent) : QObject(parent)
     m_path = "";
 }
 
-QString File::name() const{
+QString File::name() const 
+{
     return m_name;
 }
 
-QString File::iconName() const{
+QString File::iconName() const 
+{
     return m_iconName;
 }
 
-QPixmap File::pixmap() const{
+QPixmap File::pixmap() const 
+{
     return m_pixmap;
 }
 
-QString File::path() const{
+QString File::path() const 
+{
     return m_path;
 }
 
 
-void File::setName(const QString &str){
+void File::setName(const QString &str) 
+{
     if(str != m_name){
         m_name = str;
         emit nameChanged();
     }
 }
 
-void File::setIconName(const QString &str){
-    if(str != m_iconName){
+void File::setIconName(const QString &str) 
+{
+    if(str != m_iconName) {
         m_iconName = str;
         emit iconNameChanged();
     }
 }
 
-void File::setPixmap(const QPixmap &px){
+void File::setPixmap(const QPixmap &px) 
+{
     m_pixmap = px;
     emit pixmapChanged();
 }
 
 
-void File::setPath(const QString &str){
-    if(str != m_path){
+void File::setPath(const QString &str) 
+{
+    if(str != m_path) {
         m_path = str;
         emit pathChanged();
     }

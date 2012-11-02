@@ -69,8 +69,7 @@ void PreviewGenerator::setPreview(const KFileItem &item, const QPixmap &pixmap)
 {
     //qDebug("PreviewGenerator::setPreview  %s", item.localPath().toAscii().data());
     QPixmap pict = pixmap;
-    if(item.mimetype().startsWith("video/"))
-    {
+    if(item.mimetype().startsWith("video/")) {
         QPainter p(&pict);
         QPixmap scaledPixmap = videoPixmap.scaled(pict.width()/2, pict.height()/2,  Qt::KeepAspectRatio, Qt::SmoothTransformation);
         p.drawPixmap(pict.width()/2 - scaledPixmap.width()/2, pict.height()/2 - scaledPixmap.height()/2 ,  scaledPixmap );
@@ -81,8 +80,9 @@ void PreviewGenerator::setPreview(const KFileItem &item, const QPixmap &pixmap)
     Directory *model;
     if(m_models.contains(job)) {
 	model = m_models.value(job);
-	if(model)
+	if(model) {
 	    model->setPreview(item, pixmap);
+	}
     }
 }
 
@@ -95,8 +95,9 @@ void PreviewGenerator::deleteJob(KJob *job)
 
 QPixmap PreviewGenerator::getPreviewPixmap(QString filePath)
 {
-    if(previews.contains(filePath))
+    if(previews.contains(filePath)) {
         return previews[filePath];
+    }
 
     return defaultPreview;
 }
@@ -107,8 +108,9 @@ bool PreviewGenerator::hasPreviewPixmap(const QString &file_path) const {
 
 PreviewGenerator * PreviewGenerator::createInstance()
 {
-    if(!instance)
+    if(!instance) {
         instance = new PreviewGenerator;
+    }
     return instance;
 }
 void PreviewGenerator::start(Directory* model, const KFileItemList &fileList)

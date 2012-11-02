@@ -181,12 +181,12 @@ bool ProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) con
 ProxyModel::FilterMode ProxyModel::filterModeFromInt(int filterMode)
 {
     switch (filterMode) {
-        case 0:
-            return ProxyModel::NoFilter;
-        case 1:
-            return ProxyModel::FilterShowMatches;
-        default:
-            return ProxyModel::FilterHideMatches;
+    case 0:
+        return ProxyModel::NoFilter;
+    case 1:
+        return ProxyModel::FilterShowMatches;
+    default:
+        return ProxyModel::FilterHideMatches;
     }
 }
 
