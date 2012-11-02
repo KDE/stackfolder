@@ -1,6 +1,16 @@
 [Desktop Entry]
 Name=Stack Folder
+Name[es]=Apilar carpeta
+Name[nl]=Map stapelen
+Name[pt]=Empilhar a Pasta
+Name[pt_BR]=Pasta em pilha
+Name[x-test]=xxStack Folderxx
 Comment=Browse the stack of folders
+Comment[es]=Examinar la pila de carpetas
+Comment[nl]=Blader door de stapel mappen
+Comment[pt]=Navegar pela pilha de pastas
+Comment[pt_BR]=Navegue a pilha de pastas
+Comment[x-test]=xxBrowse the stack of foldersxx
 Type=Service
 Icon=folder
 X-KDE-ServiceTypes=Plasma/Applet
