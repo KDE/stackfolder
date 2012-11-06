@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Stack Folder
+Name[da]=Mappestak
 Name[es]=Apilar carpeta
+Name[et]=Kataloogipinu
 Name[hu]=Verem mappa
 Name[nl]=Map stapelen
 Name[pt]=Empilhar a Pasta
@@ -9,7 +11,9 @@ Name[sk]=Priečinok zásobníka
 Name[uk]=Стос тек
 Name[x-test]=xxStack Folderxx
 Comment=Browse the stack of folders
+Comment[da]=Gennemse mappestakken
 Comment[es]=Examinar la pila de carpetas
+Comment[et]=Kataloogipinu sirvimine
 Comment[hu]=A mappák vermének böngészése
 Comment[nl]=Blader door de stapel mappen
 Comment[pt]=Navegar pela pilha de pastas
