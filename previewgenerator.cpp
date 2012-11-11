@@ -2,9 +2,9 @@
  *   Copyright (c) 2011-2012 ROSA  <support@rosalab.ru>
  *   License: GPLv2+
  *   Authors: Julia Mineeva <julia.mineeva@osinit.ru>,
- *   	      Evgeniy Auzhin <evgeniy.augin@osinit.ru>,
- *   	      Sergey Borovkov <sergey.borovkov@osinit.ru>,
- *   	      Ural Mullabaev <ural.mullabaev@rosalab.ru>
+ *            Evgeniy Auzhin <evgeniy.augin@osinit.ru>,
+ *            Sergey Borovkov <sergey.borovkov@osinit.ru>,
+ *            Ural Mullabaev <ural.mullabaev@rosalab.ru>
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -79,10 +79,10 @@ void PreviewGenerator::setPreview(const KFileItem &item, const QPixmap &pixmap)
     KJob *job = static_cast<KJob *>(sender());
     Directory *model;
     if(m_models.contains(job)) {
-	model = m_models.value(job);
-	if(model) {
-	    model->setPreview(item, pixmap);
-	}
+        model = m_models.value(job);
+    if(model) {
+        model->setPreview(item, pixmap);
+    }
     }
 }
 

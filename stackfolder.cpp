@@ -97,25 +97,25 @@ void StackFolder::init()
 {
     connect(KGlobalSettings::self(), SIGNAL(kdisplayFontChanged()), SLOT(fontSettingsChanged()));
     connect(Plasma::Theme::defaultTheme(), SIGNAL(themeChanged()), SLOT(themeChanged()));
-    m_previewPlugins      = QStringList() << "ffmpegthumbs" 		// Video
-		  			  << "imagethumbnail" 		// Image
-		  			  << "jpegthumbnail" 		// Jpeg
-		  			  << "svgthumbnail" 		// Svg
-		  			  << "windowsimagethumbnail" 	// Windows images
-		  			  << "gsthumbnail"; 		// PostScript, PDF, DVI
-	  	  			  // << "djvuthumbnail" 	// DjVu
-	  	  			  // << "textthumbnail" 	// Text
-		  			  // << "opendocumentthumbnail" // ODF (OpenDocument Format)
-		  			  // << "exrthumbnail" 		// EXR images
-		  			  // << "comicbookthumbnail" 	// Comic books
-		  			  // << "rawthumbnail" 		// RAW
-		  			  // << "windowsexethumbnail" 	// Microsoft Windows exec
-		  			  // << "desktopthumbnail" 	// Desktop
-		  			  // << "fontthumbnail" 	// Fonts
-		  			  // << "htmlthumbnail" 	// HTML
-		  			  // << "mobithumbnail" 	// Mobipocket
-		  			  // << "webarchivethumbnail" 	// Web archives
-		  			  // << "directorythumbnail" 	// Directories
+    m_previewPlugins      = QStringList() << "ffmpegthumbs"         // Video
+                      << "imagethumbnail"           // Image
+                      << "jpegthumbnail"            // Jpeg
+                      << "svgthumbnail"             // Svg
+                      << "windowsimagethumbnail"    // Windows images
+                      << "gsthumbnail";             // PostScript, PDF, DVI
+                      // << "djvuthumbnail"         // DjVu
+                      // << "textthumbnail"         // Text
+                      // << "opendocumentthumbnail" // ODF (OpenDocument Format)
+                      // << "exrthumbnail"          // EXR images
+                      // << "comicbookthumbnail"    // Comic books
+                      // << "rawthumbnail"          // RAW
+                      // << "windowsexethumbnail"   // Microsoft Windows exec
+                      // << "desktopthumbnail"      // Desktop
+                      // << "fontthumbnail"         // Fonts
+                      // << "htmlthumbnail"         // HTML
+                      // << "mobithumbnail"         // Mobipocket
+                      // << "webarchivethumbnail"   // Web archives
+                      // << "directorythumbnail"    // Directories
     m_sortDirsFirst       = true;
     m_sortColumn          = int(KDirModel::Name);
     m_filterType          = 0;
@@ -138,7 +138,7 @@ void StackFolder::init()
         m_url = config().readEntry("url", KUrl(path));
         QDir dir(m_url.path());
         if (!dir.exists()) {
-    	    m_url = KUrl(path);
+            m_url = KUrl(path);
         }
     } else {
         config().writeEntry("url", m_url);
@@ -256,12 +256,12 @@ void StackFolder::paintInterface(QPainter *p, const QStyleOptionGraphicsItem *op
 
     if (m_hoverShow) {
         if (m_hoverState) {
-    	    QPixmap pixmap = m_icon.pixmap(geometry().width(), geometry().height());
-    	    QPixmap alphaMask(pixmap.width(), pixmap.height());
-    	    const QColor color(127, 127, 127);
-    	    alphaMask.fill(color);
-    	    pixmap.setAlphaChannel(alphaMask);
-	    setPopupIcon(pixmap);
+            QPixmap pixmap = m_icon.pixmap(geometry().width(), geometry().height());
+            QPixmap alphaMask(pixmap.width(), pixmap.height());
+            const QColor color(127, 127, 127);
+            alphaMask.fill(color);
+            pixmap.setAlphaChannel(alphaMask);
+            setPopupIcon(pixmap);
         }
         else {
             setPopupIcon(m_icon);
@@ -296,23 +296,23 @@ void StackFolder::folderChanged(const KUrl& url)
 
         if (m_downloadUrl.isParentOf(url)) {
             m_model->sort(KDirModel::ModifiedTime);
-        }
-	else {
-	    m_model->sort(KDirModel::Name);
+        } 
+        else {
+            m_model->sort(KDirModel::Name);
     }
+        
+        const int count = m_dirModel->dirLister()->itemsForDir(url).count();
+        QSize size = sizeToFitIcons(count);
 
-	const int count = m_dirModel->dirLister()->itemsForDir(url).count();
-	QSize size = sizeToFitIcons(count);
+        m_graphicsWidget->resize(size);
+        m_graphicsWidget->setMinimumSize(size);
+        m_graphicsWidget->setMaximumSize(size);
 
-  	m_graphicsWidget->resize(size);
-  	m_graphicsWidget->setMinimumSize(size);
-  	m_graphicsWidget->setMaximumSize(size);
-
-	if (m_firstChangings == 1) {
-	    m_firstChangings = 2;
+        if (m_firstChangings == 1) {
+            m_firstChangings = 2;
     }
-	m_folderChanging = false;
-	//qDebug() << "StackFolder::folderChanged() <<  m_folderChanging = " <<  m_folderChanging << "m_firstChangings = " << m_firstChangings;
+        m_folderChanging = false;
+        //qDebug() << "StackFolder::folderChanged() <<  m_folderChanging = " <<  m_folderChanging << "m_firstChangings = " << m_firstChangings;
 
     }
     updateIconWidget();
@@ -384,15 +384,15 @@ void StackFolder::updateIconWidget()
 void StackFolder::dataAdded(const QModelIndex &parent, int start, int end)
 {
     for (int i = start; i < end + 1; i++) {
-	const QModelIndex index = m_model->index(i, 0);
-	const KFileItem item = m_model->itemForIndex(index);
-	if (item.isFile()) {
-	    const KFileItem parentItem = m_model->itemForIndex(parent);
-	    if (m_downloadUrl.isParentOf(parentItem.url())) {
-            startAnimation();
-            return;
-	    }
-	}
+        const QModelIndex index = m_model->index(i, 0);
+        const KFileItem item = m_model->itemForIndex(index);
+        if (item.isFile()) {
+            const KFileItem parentItem = m_model->itemForIndex(parent);
+            if (m_downloadUrl.isParentOf(parentItem.url())) {
+                startAnimation();
+                return;
+            }
+        }
     }
 }
 
@@ -416,28 +416,28 @@ QSize StackFolder::sizeToFitIcons(const int count) const
     int cols = rows--;
 
     if (rows <= 0) {
-  		rows = 1;
+        rows = 1;
     }
     if (cols <= 0) {
-  		cols = 1;
+        cols = 1;
     }
-  	if (rows > maxRows) {
-  		rows = maxRows;
+    if (rows > maxRows) {
+        rows = maxRows;
     }
-  	if (cols > maxCols) {
-  		cols = maxCols;
+    if (cols > maxCols) {
+        cols = maxCols;
     }
     while (((rows == 1 && cols < 4) || (rows == 2 && cols < 5) || (rows > 2 && cols < 2 * rows)) && cols <  maxCols && rows * cols < count) {
-    	cols++;
+        cols++;
     }
     while (rows <  maxRows && rows * cols < count) {
-    	rows++;
+        rows++;
     }
 
 
     QSize viewSize = QSize(cols*120, rows*120);
     QSize size = QSize(viewSize.width() + 2 * margin + 40,
-  		       labelSize.height() + viewSize.height() + 2 * margin + spacing);
+            labelSize.height() + viewSize.height() + 2 * margin + spacing);
 
     return size;
 }
@@ -582,10 +582,10 @@ void StackFolder::popupEvent(bool show)
 {
     //qDebug() << "StackFolder::popupEvent(): show=" << show << " m_firstChangings=" << m_firstChangings;
     if (show) {
-	if (!m_firstChangings) {
-	    m_firstChangings = 1;
-	    m_directory->setUrl(m_topUrl);
-	}
+        if (!m_firstChangings) {
+            m_firstChangings = 1;
+            m_directory->setUrl(m_topUrl);
+        }
     }
     else {
         if (m_needShow) {

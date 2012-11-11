@@ -39,7 +39,7 @@ QPixmap TypeImageProvider::requestPixmap(const QString &id, QSize *size, const Q
     }
     //qDebug("TypeImageProvider::requestPixmap() %s", id.toAscii().data());
     return KIcon(id).pixmap(requestedSize.width() > 0 ? requestedSize.width() : width,
-                    	    requestedSize.height() > 0 ? requestedSize.height() : height);
+            requestedSize.height() > 0 ? requestedSize.height() : height);
 };
 
 ModeImageProvider::ModeImageProvider()
@@ -60,28 +60,29 @@ QPixmap ModeImageProvider::requestPixmap(const QString &id, QSize *size, const Q
 
     QStringList list = id.split("/");
     if (list.count() > 1) {
-	QString str = list[0];
-	QIcon icon = KIcon(list[1]);
-	QIcon::Mode mode;
-	//if (icon != null) {
-	    if (str.contains("disabled")) {
-		mode = QIcon::Disabled;
-	    }
-	    else if (str.contains("active")) {
-		mode = QIcon::Active;
-	    }
-	    else if (str.contains("selected")) { 
-		mode = QIcon::Selected;
-	    }
-	    else {
-		mode = QIcon::Normal;
-	    }
+        QString str = list[0];
+        QIcon icon = KIcon(list[1]);
+        QIcon::Mode mode;
+        //if (icon != null) {
 
-	    QPixmap pixmap = icon.pixmap(*size, mode);
-	    //if (mode == QIcon::Selected)
-		//pixmap = pixmap.scaled(*size * 0.9, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-	    return pixmap;
-	//}
+        if (str.contains("disabled")) {
+            mode = QIcon::Disabled;
+        }
+        else if (str.contains("active")) {
+            mode = QIcon::Active;
+        }
+        else if (str.contains("selected")) { 
+            mode = QIcon::Selected;
+        }
+        else {
+            mode = QIcon::Normal;
+        }
+
+        QPixmap pixmap = icon.pixmap(*size, mode);
+        //if (mode == QIcon::Selected)
+        //pixmap = pixmap.scaled(*size * 0.9, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        return pixmap;
+    //}
     }
     return QPixmap();
 };
@@ -104,6 +105,6 @@ QPixmap PreviewImageProvider::requestPixmap(const QString &id, QSize *size, cons
     //qDebug("PreviewImageProvider::requestPixmap() %s", id.toAscii().data());
 
     return previewGenerator->getPreviewPixmap(id).scaled(requestedSize.width() > 0 ? requestedSize.width() : width,
-                    	    requestedSize.height() > 0 ? requestedSize.height() : height,
-                    	    Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            requestedSize.height() > 0 ? requestedSize.height() : height,
+            Qt::KeepAspectRatio, Qt::SmoothTransformation);
 };

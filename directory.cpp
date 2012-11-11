@@ -209,7 +209,7 @@ void Directory::setFileContent(const QString &str)
 void Directory::back()
 {
     if(!isTopUrl()) {
-	setUrl(m_url.upUrl());
+        setUrl(m_url.upUrl());
     }
 }
 
@@ -219,11 +219,11 @@ void Directory::activate(int index)
     const KFileItem item = m_model->itemForIndex(modelIndex);
 
     if (item.isDir()) {
-	setUrl(item.url());
+        setUrl(item.url());
     }
     else if (item.isFile()) {
-  	item.run();
-  	emit fileActivated();
+        item.run();
+        emit fileActivated();
     }
 }
 
@@ -246,8 +246,8 @@ void Directory::open()
     const QModelIndex index = m_model->indexForUrl(m_url);
     const KFileItem item = m_model->itemForIndex(index);
     if (m_errorMessage.isEmpty()) {
-	item.run();
-	emit fileActivated();
+        item.run();
+        emit fileActivated();
     }
 }
 
@@ -260,7 +260,7 @@ void Directory::activateDragAndDrop(int index) {
 void Directory::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     if (!m_directoryChanging)
-	emit dataAdded(parent, start, end);
+        emit dataAdded(parent, start, end);
 }
 
 void Directory::listingStarted(const KUrl &url)
@@ -332,8 +332,8 @@ void Directory::refresh()
 
     File * file;
     for(int i = 0; i < m_model->rowCount() ; i++) {
-	QModelIndex index = m_model->index(i, 0);
-	KFileItem item = m_model->itemForIndex(index);
+        QModelIndex index = m_model->index(i, 0);
+        KFileItem item = m_model->itemForIndex(index);
         file = new File();
         file->setName(item.name());
         file->setIconName(item.iconName());
@@ -341,8 +341,8 @@ void Directory::refresh()
         file->setPath(path()+item.name());
         m_fileList.append(file);
 
-	if (!item.isDir()) {
-    	    m_previewFileList.append(item);
+    if (!item.isDir()) {
+        m_previewFileList.append(item);
         }
     }
     m_previewGenerator->start(this, m_previewFileList);
@@ -354,9 +354,9 @@ void Directory::setPreview(const KFileItem &item, const QPixmap &pixmap)
     QModelIndex index = m_model->indexForUrl(item.url());
     //qDebug() << "PreviewGenerator::setPreview()  url=" << item.url() << " row=" << index.row();
     if (index.row() >= 0 && index.row() < m_fileList.count()) {
-	File *file = m_fileList.at(index.row());
-	file->setPixmap(pixmap);
-	//emit gotPreview(index.row());
+        File *file = m_fileList.at(index.row());
+        file->setPixmap(pixmap);
+        //emit gotPreview(index.row());
     }
 }
 
@@ -374,6 +374,6 @@ void Directory::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == m_delayedPreviewTimer.timerId()) {
         m_delayedPreviewTimer.stop();
-	m_previewGenerator->start(this, m_previewFileList);
+        m_previewGenerator->start(this, m_previewFileList);
     }
 }

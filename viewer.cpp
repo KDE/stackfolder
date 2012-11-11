@@ -47,10 +47,10 @@ void Viewer::run(const QString &path, int x, int y, int width, int height)
         m_process = new QProcess();
         m_process->start(executable, paramList);
 
-    	if (!m_process->waitForFinished(3000)) {
-    	    qDebug() << "Viewer::run(): Could not stop Klook";
-    	    return;
-    	}
+        if (!m_process->waitForFinished(3000)) {
+            qDebug() << "Viewer::run(): Could not stop Klook";
+            return;
+        }
 
         connect(m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(erase(int, QProcess::ExitStatus)));
 
@@ -65,8 +65,8 @@ void Viewer::run(const QString &path, int x, int y, int width, int height)
 
         m_process->start(executable, paramList);
         if (!m_process->waitForStarted(3000)) {
-    	    qDebug() << "Viewer::run(): Could not start Klook";
-    	    return;
+            qDebug() << "Viewer::run(): Could not start Klook";
+            return;
         }
     }
 }
@@ -75,8 +75,8 @@ void Viewer::stop()
 {
     if (m_process) {
         if (m_process->state() == QProcess::Running) {
-    	    m_process->terminate();
-    	    m_process->waitForFinished(3000);
+            m_process->terminate();
+            m_process->waitForFinished(3000);
         }
     }
 }

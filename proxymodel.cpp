@@ -163,13 +163,13 @@ bool ProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) con
 
     if( left.column() == KDirModel::Name) {
         const QString name1 = dirModel->data(left).toString();
-	const QString name2 = dirModel->data(right).toString();
+        const QString name2 = dirModel->data(right).toString();
 
         return KStringHandler::naturalCompare(name1, name2, Qt::CaseInsensitive) < 0;
     }
     else if ( left.column() == KDirModel::ModifiedTime) {
-	const QDateTime time1 = QDateTime::fromString(dirModel->data(left).toString(), "dd.MM.yy HH:mm");
-	const QDateTime time2 = QDateTime::fromString(dirModel->data(right).toString(), "dd.MM.yy HH:mm");
+        const QDateTime time1 = QDateTime::fromString(dirModel->data(left).toString(), "dd.MM.yy HH:mm");
+        const QDateTime time2 = QDateTime::fromString(dirModel->data(right).toString(), "dd.MM.yy HH:mm");
 
         return time1 > time2;
     }
