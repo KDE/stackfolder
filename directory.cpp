@@ -23,13 +23,13 @@
 
 #include <QAbstractItemView>
 
-#include <KDirModel>
 #include <KDirLister>
 #include <KFilePreviewGenerator>
 #include <KUrl>
 #include <KDebug>
 #include <krun.h>
 
+#include "dirmodel.h"
 #include "proxymodel.h"
 #include "previewgenerator.h"
 
@@ -45,7 +45,7 @@ Directory::Directory(QObject *parent)
 void Directory::setModel(QAbstractItemModel *model)
 {
     m_model = static_cast<ProxyModel*>(model);
-    m_dirModel = static_cast<KDirModel*>(m_model->sourceModel());
+    m_dirModel = static_cast<DirModel*>(m_model->sourceModel());
 
     connect(m_model, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(rowsInserted(QModelIndex,int,int)));
     //connect(m_model, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(rowsRemoved(QModelIndex,int,int)));
@@ -352,7 +352,7 @@ void Directory::setPreview(const KFileItem &item, const QPixmap &pixmap)
 {
     Q_UNUSED(pixmap);
     QModelIndex index = m_model->indexForUrl(item.url());
-    //qDebug() << "PreviewGenerator::setPreview()  url=" << item.url() << " row=" << index.row();
+    //kDebug() << "PreviewGenerator::setPreview()  url=" << item.url() << " row=" << index.row();
     if (index.row() >= 0 && index.row() < m_fileList.count()) {
         File *file = m_fileList.at(index.row());
         file->setPixmap(pixmap);

@@ -39,7 +39,6 @@
 #include <QPropertyAnimation>
 #include <QGraphicsDropShadowEffect>
 
-#include <KDirModel>
 #include <KDirLister>
 #include <KFileItemDelegate>
 #include <kfileplacesmodel.h>
@@ -59,6 +58,7 @@
 #include <Plasma/ToolTipManager>
 
 #include "dirlister.h"
+#include "dirmodel.h"
 #include "proxymodel.h"
 
 #include "directory.h"
@@ -76,7 +76,7 @@ StackFolder::StackFolder(QObject *parent, const QVariantList &args)
     setAspectRatioMode(Plasma::IgnoreAspectRatio);
     setHasConfigurationInterface(false);
 
-    m_dirModel = new KDirModel(this);
+    m_dirModel = new DirModel(this);
 
     m_model = new ProxyModel(this);
     m_model->setSourceModel(m_dirModel);
@@ -117,14 +117,14 @@ void StackFolder::init()
                       // << "webarchivethumbnail"   // Web archives
                       // << "directorythumbnail"    // Directories
     m_sortDirsFirst       = true;
-    m_sortColumn          = int(KDirModel::Name);
+    m_sortColumn          = int(DirModel::Name);
     m_filterType          = 0;
     m_hideForChangeFolder = true;
 
     m_model->setFilterMode(ProxyModel::filterModeFromInt(m_filterType));
     m_model->setSortDirectoriesFirst(m_sortDirsFirst);
     m_model->setDynamicSortFilter(m_sortColumn != -1);
-    m_model->sort(m_sortColumn != -1 ? m_sortColumn : KDirModel::Name, Qt::AscendingOrder);
+    m_model->sort(m_sortColumn != -1 ? m_sortColumn : DirModel::Name, Qt::AscendingOrder);
 
     KDirLister *lister = new DirLister(this);
     lister->setDelayedMimeTypes(true);
@@ -287,7 +287,7 @@ void StackFolder::folderChanged(const KUrl& url)
     if (m_graphicsWidget) {
 
         m_folderChanging = true;
-        //qDebug() << "StackFolder::folderChanged():  m_folderChanging = " <<  m_folderChanging << "m_firstChangings = " << m_firstChangings;
+        //kDebug() << "StackFolder::folderChanged():  m_folderChanging = " <<  m_folderChanging << "m_firstChangings = " << m_firstChangings;
 
         if (isPopupShowing() && m_firstChangings > 1) {
             m_needShow = true;
@@ -295,10 +295,10 @@ void StackFolder::folderChanged(const KUrl& url)
         }
 
         if (m_downloadUrl.isParentOf(url)) {
-            m_model->sort(KDirModel::ModifiedTime);
+            m_model->sort(DirModel::ModifiedTime);
         } 
         else {
-            m_model->sort(KDirModel::Name);
+            m_model->sort(DirModel::Name);
     }
         
         const int count = m_dirModel->dirLister()->itemsForDir(url).count();
@@ -312,7 +312,7 @@ void StackFolder::folderChanged(const KUrl& url)
             m_firstChangings = 2;
     }
         m_folderChanging = false;
-        //qDebug() << "StackFolder::folderChanged() <<  m_folderChanging = " <<  m_folderChanging << "m_firstChangings = " << m_firstChangings;
+        //kDebug() << "StackFolder::folderChanged() <<  m_folderChanging = " <<  m_folderChanging << "m_firstChangings = " << m_firstChangings;
 
     }
     updateIconWidget();
@@ -342,8 +342,8 @@ void StackFolder::updateIconWidget()
     if (!m_placesModel) {
         m_placesModel = new KFilePlacesModel(this);
 
-        const QModelIndex
-        index = m_placesModel->closestItem(m_topUrl);t KUrl url = m_placesModel->url(index);
+        const QModelIndex index = m_placesModel->closestItem(m_topUrl);
+        const KUrl url = m_placesModel->url(index);
 
         KFileItem item = m_dirModel->itemForIndex(QModelIndex());
 
@@ -355,6 +355,7 @@ void StackFolder::updateIconWidget()
         } 
         else if (m_topUrl.protocol() == "trash") {
             m_icon = m_model->rowCount() > 0 ? KIcon("user-trash-full") : KIcon("user-trash");
+        } 
         else if (index.isValid() && url.equals(m_topUrl, KUrl::CompareWithoutTrailingSlash)) {
             m_icon = m_placesModel->icon(index);
         }
@@ -411,7 +412,7 @@ QSize StackFolder::sizeToFitIcons(const int count) const
     const QSize maxSize = QApplication::desktop()->availableGeometry().size();
     const int  maxRows = (maxSize.height() * 0.8 - 60 - 2 * margin) / 120;
     const int maxCols = (maxSize.width() * 0.8 - 2 * margin)/ 120;
-    //qDebug() << " maxWidth:" << maxSize.width() << " maxHeight:" << maxSize.height();
+    //kDebug() << " maxWidth:" << maxSize.width() << " maxHeight:" << maxSize.height();
     int rows = sqrt(count);
     int cols = rows--;
 
@@ -452,7 +453,7 @@ void StackFolder::runViewer(const QString &path, int x, int y, int width, int he
 
     QSize s = m_graphicsWidget->size().toSize() + margin;
     QPoint pos = popupPosition(s);
-    //qDebug() << "runViewer x=" << pos.x() << " y=" << pos.y();
+    //kDebug() << "runViewer x=" << pos.x() << " y=" << pos.y();
 
     m_viewer->run(path, x + pos.x(), y + pos.y(), width, height);
 }
@@ -580,7 +581,7 @@ void StackFolder::activatedDragAndDrop(const KFileItem &item)
 
 void StackFolder::popupEvent(bool show)
 {
-    //qDebug() << "StackFolder::popupEvent(): show=" << show << " m_firstChangings=" << m_firstChangings;
+    //kDebug() << "StackFolder::popupEvent(): show=" << show << " m_firstChangings=" << m_firstChangings;
     if (show) {
         if (!m_firstChangings) {
             m_firstChangings = 1;

@@ -27,7 +27,6 @@
 #include <KUrl>
 #include <KFileItemList>
 
-//#include <QDir>
 #include <QStringList>
 #include <QTextStream>
 #include <QDeclarativeListProperty>
@@ -39,11 +38,11 @@
 class QAbstractItemModel;
 class QModelIndex;
 class ProxyModel;
-class KDirModel;
 class KFileItem;
 class KFileItemList;
-//class KUrl;
 class PreviewGenerator;
+
+class DirModel;
 
 class Directory : public QObject {
 
@@ -123,7 +122,7 @@ class Directory : public QObject {
 
     private:
 	ProxyModel *m_model;
-	KDirModel *m_dirModel;
+	DirModel *m_dirModel;
 	KUrl m_url;
 	KUrl m_topUrl;
         //QDir m_dir;

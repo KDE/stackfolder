@@ -21,8 +21,6 @@
 
 #include "file.h"
 
-#include <QDebug>
-
 File::File(QObject *parent) : QObject(parent)
 {
     m_name = "";

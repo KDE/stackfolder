@@ -25,9 +25,10 @@
 #include <QSet>
 #include <QRegExp>
 
-class KDirModel;
 class KFileItem;
 class KUrl;
+
+class DirModel;
 
 class ProxyModel : public QSortFilterProxyModel
 {
@@ -58,7 +59,7 @@ public:
 
     QModelIndex indexForUrl(const KUrl &url) const;
     KFileItem itemForIndex(const QModelIndex &index) const;
-    bool isDir(const QModelIndex &index, const KDirModel *dirModel) const;
+    bool isDir(const QModelIndex &index, const DirModel *dirModel) const;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
     static FilterMode filterModeFromInt(int filterMode);

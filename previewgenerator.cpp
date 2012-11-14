@@ -67,7 +67,7 @@ void PreviewGenerator::notifyModel(const QString& filePath)
 
 void PreviewGenerator::setPreview(const KFileItem &item, const QPixmap &pixmap)
 {
-    //qDebug("PreviewGenerator::setPreview  %s", item.localPath().toAscii().data());
+    //kDebug("PreviewGenerator::setPreview  %s", item.localPath().toAscii().data());
     QPixmap pict = pixmap;
     if(item.mimetype().startsWith("video/")) {
         QPainter p(&pict);

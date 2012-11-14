@@ -21,7 +21,7 @@
 
 #include "viewer.h"
 
-#include <QDebug>
+#include <KDebug>
 
 Viewer::Viewer(QObject *parent)
     : QObject(parent),
@@ -48,7 +48,7 @@ void Viewer::run(const QString &path, int x, int y, int width, int height)
         m_process->start(executable, paramList);
 
         if (!m_process->waitForFinished(3000)) {
-            qDebug() << "Viewer::run(): Could not stop Klook";
+            kDebug() << "Viewer::run(): Could not stop Klook";
             return;
         }
 
@@ -65,7 +65,7 @@ void Viewer::run(const QString &path, int x, int y, int width, int height)
 
         m_process->start(executable, paramList);
         if (!m_process->waitForStarted(3000)) {
-            qDebug() << "Viewer::run(): Could not start Klook";
+            kDebug() << "Viewer::run(): Could not start Klook";
             return;
         }
     }

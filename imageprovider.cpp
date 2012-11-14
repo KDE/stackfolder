@@ -37,7 +37,7 @@ QPixmap TypeImageProvider::requestPixmap(const QString &id, QSize *size, const Q
     if (size) {
         *size = QSize(width, height);
     }
-    //qDebug("TypeImageProvider::requestPixmap() %s", id.toAscii().data());
+    //kDebug("TypeImageProvider::requestPixmap() %s", id.toAscii().data());
     return KIcon(id).pixmap(requestedSize.width() > 0 ? requestedSize.width() : width,
             requestedSize.height() > 0 ? requestedSize.height() : height);
 };
@@ -102,7 +102,7 @@ QPixmap PreviewImageProvider::requestPixmap(const QString &id, QSize *size, cons
         *size = QSize(width, height);
     }
 
-    //qDebug("PreviewImageProvider::requestPixmap() %s", id.toAscii().data());
+    //kDebug("PreviewImageProvider::requestPixmap() %s", id.toAscii().data());
 
     return previewGenerator->getPreviewPixmap(id).scaled(requestedSize.width() > 0 ? requestedSize.width() : width,
             requestedSize.height() > 0 ? requestedSize.height() : height,

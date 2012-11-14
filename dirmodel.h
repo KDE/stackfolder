@@ -19,30 +19,21 @@
  *   Boston, MA 02110-1301, USA.
 */
 
-#ifndef VIEWER_H
-#define VIEWER_H
+#ifndef DIRMODEL_H
+#define DIRMODEL_H
 
-#include <QProcess>
+#include <KDirModel>
 
-class Viewer : public QObject
+class DirModel : public KDirModel
 {
     Q_OBJECT
 
 public:
-    Viewer(QObject *parent = 0);
-    ~Viewer();
+    DirModel(QObject *parent = 0);
+    ~DirModel();
 
-    void run(const QString &path, int x, int y, int width, int height);
-    bool isRun();
-
-public slots:
-    void stop();
-
-protected slots:
-    void erase(int exitCode, QProcess::ExitStatus exitStatus);
-
-private:
-    QProcess* m_process;
+    virtual QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
 };
 
 #endif
+

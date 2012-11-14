@@ -21,8 +21,8 @@
 #include "proxymodel.h"
 
 #include <KDesktopFile>
-#include <KDirModel>
 #include <KStringHandler>
+#include <KDebug>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -30,6 +30,7 @@
 
 #include <kde_file.h>
 
+#include "dirmodel.h"
 
 ProxyModel::ProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent),
@@ -110,17 +111,17 @@ bool ProxyModel::parseDesktopFiles() const
 
 QModelIndex ProxyModel::indexForUrl(const KUrl &url) const
 {
-    const KDirModel *dirModel = static_cast<KDirModel*>(sourceModel());
+    const DirModel *dirModel = static_cast<DirModel*>(sourceModel());
     return mapFromSource(dirModel->indexForUrl(url));
 }
 
 KFileItem ProxyModel::itemForIndex(const QModelIndex &index) const
 {
-    const KDirModel *dirModel = static_cast<KDirModel*>(sourceModel());
+    const DirModel *dirModel = static_cast<DirModel*>(sourceModel());
     return dirModel->itemForIndex(mapToSource(index));
 }
 
-bool ProxyModel::isDir(const QModelIndex &index, const KDirModel *dirModel) const
+bool ProxyModel::isDir(const QModelIndex &index, const DirModel *dirModel) const
 {
     KFileItem item = dirModel->itemForIndex(index);
     if (item.isDir()) {
@@ -147,7 +148,7 @@ bool ProxyModel::isDir(const QModelIndex &index, const KDirModel *dirModel) cons
 
 bool ProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    const KDirModel *dirModel = static_cast<KDirModel*>(sourceModel());
+    const DirModel *dirModel = static_cast<DirModel*>(sourceModel());
 
     // Sort directories first
     if (m_sortDirsFirst) {
@@ -161,15 +162,15 @@ bool ProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) con
         }
     }
 
-    if( left.column() == KDirModel::Name) {
+    if( left.column() == DirModel::Name) {
         const QString name1 = dirModel->data(left).toString();
         const QString name2 = dirModel->data(right).toString();
 
         return KStringHandler::naturalCompare(name1, name2, Qt::CaseInsensitive) < 0;
     }
-    else if ( left.column() == KDirModel::ModifiedTime) {
-        const QDateTime time1 = QDateTime::fromString(dirModel->data(left).toString(), "dd.MM.yy HH:mm");
-        const QDateTime time2 = QDateTime::fromString(dirModel->data(right).toString(), "dd.MM.yy HH:mm");
+    else if ( left.column() == DirModel::ModifiedTime) {
+        const QDateTime time1 = dirModel->data(left).toDateTime();
+        const QDateTime time2 = dirModel->data(right).toDateTime();
 
         return time1 > time2;
     }
@@ -223,8 +224,8 @@ bool ProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent
         return true;
     }
 
-    const KDirModel *dirModel = static_cast<KDirModel*>(sourceModel());
-    const KFileItem item = dirModel->itemForIndex(dirModel->index(sourceRow, KDirModel::Name, sourceParent));
+    const DirModel *dirModel = static_cast<DirModel*>(sourceModel());
+    const KFileItem item = dirModel->itemForIndex(dirModel->index(sourceRow, DirModel::Name, sourceParent));
 
     if (m_filterMode == FilterShowMatches) {
         return (matchPattern(item) && matchMimeType(item));

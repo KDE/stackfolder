@@ -33,7 +33,6 @@ class QGraphicsLinearLayout;
 class QDeclarativeView;
 class QSequentialAnimationGroup;
 class QPropertyAnimation;
-class KDirModel;
 class KFilePlacesModel;
 class ProxyModel;
 class Dialog;
@@ -99,7 +98,7 @@ private:
     QGraphicsWidget *m_graphicsWidget;
     QItemSelectionModel *m_selectionModel;
     ProxyModel *m_model;
-    KDirModel *m_dirModel;
+    DirModel *m_dirModel;
     KFilePlacesModel *m_placesModel;
     KIcon m_icon;
     QDeclarativeView *m_declView;
