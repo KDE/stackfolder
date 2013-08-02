@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Stack Folder
+Name[bs]=Stek fascikla
 Name[da]=Mappestak
 Name[de]=Ordnerstapel
 Name[el]=Στοίβα φακέλων
@@ -22,6 +23,7 @@ Name[tr]=Yığın Klasörü
 Name[uk]=Стос тек
 Name[x-test]=xxStack Folderxx
 Comment=Browse the stack of folders
+Comment[bs]=Potraži stek fascikli
 Comment[da]=Gennemse mappestakken
 Comment[de]=Ordnerstapel durchsuchen
 Comment[el]=Περιηγηθείτε στη στοίβα των φακέλων
